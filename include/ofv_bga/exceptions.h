@@ -1,7 +1,7 @@
 #pragma once
 #include <exception>
 
-namespace ReverseTask
+namespace BGA
 {
 	class MyException : public std::exception {
 	public:

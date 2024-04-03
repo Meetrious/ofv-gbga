@@ -1,6 +1,6 @@
-#include <reverse_task/BGA/task.h>
+#include <ofv_bga/task.h>
 
-namespace ReverseTask::BGA {
+namespace BGA {
 
 #define RT_IOS_TEMPLATE(RETURN_TYPE) \
   template <typename StraightTask_t> RETURN_TYPE Task<StraightTask_t>::IOs
@@ -195,4 +195,4 @@ RT_IOS_TEMPLATE(void)::ConstructAberEvoPlotScript() {
   CSout.close();
 }
 
-}  // namespace ReverseTask::BGA
+}  // namespace BGA

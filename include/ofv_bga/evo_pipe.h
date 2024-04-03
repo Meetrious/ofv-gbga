@@ -8,7 +8,7 @@
 #include <vector>
 #include <memory>
 
-namespace ReverseTask::BGA {
+namespace BGA {
 
 using std::vector, std::thread, std::array;
 
@@ -64,6 +64,6 @@ class StraightTaskSolverThread {
 
 };
 
-}  // namespace ReverseTask::BGA
+}  // namespace BGA
 
 #endif  // BGA_THREAD_H_

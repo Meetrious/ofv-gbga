@@ -7,7 +7,7 @@
 #include <fstream>
 #include <iostream>
 
-namespace StraightTask {
+namespace Apoptoz {
 
 #define ST_FOR_BGA(RETURN_TYPE) \
   template<typename STBase, typename coefType, class varType> RETURN_TYPE\
@@ -133,74 +133,37 @@ ST_FOR_BGA(void)::collect_calculation(const size_t grid_knot) {
 /* --------------------------- custom-definitions ---------------------------*/
 
 ST_FOR_BGA(double)::SolveForBGA() {
-  
-  STBase::PrepairTheTask();
+  STBase::solve();
 
-  uint16_t current_gap = 0u;
-  double Tj;
+  for (auto row : STBase::data_rows) {
+    row.cur_it = row.data.begin();
 
-  if (data_rows[0].m_ptr_to_base->iterations_when_to_collect.empty()){
-    recognize_collectable_iterations();
-  }
-
-  for (auto & row: data_rows) {
-    row.reset_iterators();
-  }
-
-  collect_calculation(0u);
-
-  while (current_gap < STBase::Mthd.full_amount_of_gaps) {
-    
-    STBase::Mthd.X_prev = STBase::Mthd.X_init;  // previous step is defined by initial one at every
-                                // begining of the gap
-
-    Tj = STBase::Mthd.X_pred.tj = STBase::Mthd.X_prev.tj;  // synchronising the independent variable
-    uint32_t Nj = 1;  // restating the number of the current step in num-method
-
-    // 1st approximations for multistep-methods
-    if (current_gap == 0)
-      STBase::ApplyPrepStep(Nj, Tj);  // in one-step-methods it is void{return;}
-
-    // cycle for processing current gap in <step_method>
-    for (; Nj <= STBase::Mthd.N; Nj++) {
-      // shifting independent variable on one step further for predicted solution
-      Tj = STBase::Mthd.X_pred.tj += STBase::Mthd.H;
-
-      // setting ret-values for Tj-time-moment in X_pred
-      STBase::RetUpload(Nj);
-
-      STBase::AssignSolData(current_gap, Nj, STBase::Mthd.X_pred);
-
-      STBase::ApplyMethod();
-
-      STBase::collect_calculation(Nj + current_gap);
-
-      // updating RetArray(s) pushing X_prev.value of solution
-      STBase::RetDataUpdate(Nj);
-
-      // shifting X_prev next step further in one-step-methods and
-      // X[1],X[2]... next step further in multistep-methods
-      STBase::NodeShift();
-
-    }  // end of the cycle processing current gap in <step_method>
-
-    ++current_gap;
-
-    // Checking if the any gap remained processed
-    if (current_gap == STBase::Mthd.full_amount_of_gaps) {
-    } else {
-      STBase::Mthd.X_init = (*STBase::Mthd.X_sol);
-      Nj = 1;
+    for (auto when_to_collect : row.base_info->iterations_when_to_collect) {
+      row.cur_it->calculation = STBase::solution[when_to_collect][var_map[row.base_info->name]];
+      row.cur_it++;
     }
   }
   
-  return calculate_dfi();
-
+  return STBase::calculate_dfi();
 }  // StraightTaskForBGA::SolveForBGA()
 
-ST_FOR_BGA(void)::map_variables(){/*...*/}
+ST_FOR_BGA(void)::map_variables() {
+  var_map.emplace("ROS", STBase::VarName::ROS);
+  var_map.emplace("p53", STBase::VarName::p53);
+  var_map.emplace("Sirt1", STBase::VarName::Sirt1);
+  var_map.emplace("miR-34a", STBase::VarName::miR_34a);
+  var_map.emplace("Bax", STBase::VarName::Bax);
+}
 
-ST_FOR_BGA(void)::map_coefficients(){/*...*/}
+ST_FOR_BGA(void)::map_coefficients() {
+  for (auto &pair : STBase::coefs) {
+    coef_map.emplace(pair.first, &pair.second);
+  }
+  coef_map.emplace("tau1", &(STBase::tau[0]));
+  coef_map.emplace("tau2", &(STBase::tau[1]));
+  coef_map.emplace("tau3", &(STBase::tau[2]));
+  coef_map.emplace("tau4", &(STBase::tau[3]));
+}
 
 /* ========================== synched-data-section ========================== */
 
@@ -250,6 +213,7 @@ synched_data_storage::base::base(const char* name,
     iterations_when_to_collect.shrink_to_fit();
   }
 }
+
 
 synched_data_storage::synched_data_storage
 (const synched_data_storage::base::CnstPtr & ptr_to_base, const double* ptr_to_sol)

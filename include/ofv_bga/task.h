@@ -10,7 +10,7 @@
  * are to variate during BGA iterations */
 #define CTV_SIZE 30
 
-namespace ReverseTask::BGA {
+namespace BGA {
 
 using std::array;
 using std::vector;
@@ -187,6 +187,6 @@ class Task<StraightTask_t>::IOs final {
 
 };  // class Task::IOs
 
-}  // namespace ReverseTask::BGA
+}  // namespace BGA
 
 #endif  // BGA_TASK_H_

@@ -1,8 +1,8 @@
-#include <reverse_task/BGA/evo_pipe.h>
+#include <ofv_bga/evo_pipe.h>
 #include <exception>
 #include <string>
 
-namespace ReverseTask::BGA {
+namespace BGA {
   using std::shared_ptr;
   using std::weak_ptr;
 
@@ -84,4 +84,4 @@ catch (const std::exception& e) {
 
 #undef ST_THR_TEMPLATE
 
-}  // namespace ReverseTask::BGA
+}  // namespace BGA

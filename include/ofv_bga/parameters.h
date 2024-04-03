@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace ReverseTask::BGA {
+namespace BGA {
 
 class Parameters {
   friend class IOs;
@@ -81,6 +81,6 @@ class Parameters {
   
 };
 
-}  // namespace ReverseTask::BGA
+}  // namespace BGA
 
 #endif  // BGA_PARAMETERS_H_

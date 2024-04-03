@@ -128,6 +128,6 @@ operator*(const Individ& lhs, const Individ& rhs);
 [[nodiscard]]double 
 distance(const feature_t& one, const feature_t& another);
 
-}  // namespace ReverseTask::BGA
+}  // namespace BGA
 
 #endif  // BGA_SPECIES_H_

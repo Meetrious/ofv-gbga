@@ -1,16 +1,14 @@
-#include <reverse_task/BGA/task.h>
+#include <ofv_bga/task.h>
 #include <iostream>
 
-using namespace ReverseTask;
+using namespace BGA;
 
 template<typename ST_Method>
 BGA::Task<ST_Method>::Parameters::Parameters(
     // parameters for ReverseTask
     unsigned iter_amount, unsigned thread_amount, unsigned init_pop_size,
     unsigned reg_pop_size, unsigned Sort_Fract, unsigned Recr_Fract,
-    double recombination_parameter, double mutation_parameter,
-    // parameters for StraightTask
-    unsigned ST_gridPow, double ST_gapWidth, unsigned ST_amountOfGaps
+    double recombination_parameter, double mutation_parameter
 ) : 
     amount_of_iterations{iter_amount},
     amount_of_threads{thread_amount},
@@ -19,11 +17,7 @@ BGA::Task<ST_Method>::Parameters::Parameters(
     SortedFraction{Sort_Fract},
     RecruitedFraction{Recr_Fract},
     rc{recombination_parameter},
-    mu{mutation_parameter},
-
-    N{ST_gridPow},
-    gap_width{ST_gapWidth},
-    full_amount_of_gaps{ST_amountOfGaps} {
+    mu{mutation_parameter} {
       
   bounds.clear();
   bounds.emplace_back();

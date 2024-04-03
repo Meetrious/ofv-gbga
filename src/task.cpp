@@ -4,7 +4,7 @@
 #include <common/Timer.h>
 #include <memory>
 
-namespace ReverseTask {
+namespace BGA {
 
 namespace {
 
@@ -234,4 +234,4 @@ BGA::Task<StraightTask_t>::Mutate(Individ& Ind) {
 } // */
 
 
-}  // namespace ReverseTask
+}  // namespace BGA
