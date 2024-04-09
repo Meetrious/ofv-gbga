@@ -65,7 +65,7 @@ ST_THR_TEMPLATE(void)::start_to_work(vector<Individ> & population,
     error_msg << "Pointer to the Straight-Task-object is empty"
               << " at the moment of population-testing. "
               << "You should bound st_object with a real object "
-              << " before BGA-execution via retrieve_straight_task method!"
+              << " before BGA-execution via retrieve_straight_task method!";
     throw std::runtime_error(error_msg.str());
   }
   

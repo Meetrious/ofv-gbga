@@ -7,10 +7,13 @@
 #include <thread>
 #include <vector>
 #include <memory>
+#include <sstream>
 
 namespace BGA {
 
-using std::vector, std::thread, std::array;
+using std::vector;
+using std::thread;
+using std::array;
 
 class IAggregateControls;
 
