@@ -1,10 +1,12 @@
 
-#include <IException.h>
+#include <common/IException.h>
 
 namespace Tools {
 
-  std::runtime_error IException::createBackTrack(const std::string& file, const int& line,
-                                                 const std::string& func, const std::exception& child,
+  std::runtime_error IException::createBackTrack(const std::string& file,
+                                                 const int line,
+                                                 const std::string& func,
+                                                 const std::exception& child,
                                                  const std::string& msg) {
     const std::string pathSignature = "/src/";
 

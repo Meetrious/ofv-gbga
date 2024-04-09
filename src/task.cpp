@@ -1,10 +1,10 @@
 #include <ofv_bga/task.h>
+
+
 #include <cmath>
 #include <iostream>
 #include <common/Timer.h>
 #include <memory>
-
-namespace ReverseTask {
 
 namespace {
 
@@ -21,13 +21,17 @@ getMutation(const double L, const double R,
 
 }  // namespace
 
-template <typename StraightTask_t>
-BGA::Task<StraightTask_t>::Task(const StraightTask_t&                    stRef,
-                                const vector<feature_t::base::CnstPtr>&  featureBasesPtrs,
-                                const Parameters&                        bgaParams)
- 
-  : Parameters{CurrentPar_s},
-    default_indiv{featureBasesPtrs} {
+#define TEMPLATE_BGA_TASK(RETURN_TYPE) \
+  template <typename StraightTaskType> RETURN_TYPE \
+  BGA::Task<StraightTaskType>
+
+TEMPLATE_BGA_TASK()::Task(const StraightTaskType&                 stRef,
+                          const vector<feature_t::base::CnstPtr>& featureBasesPtrs,
+                          const Parameters&                       bgaParams,
+                          const std::string&                      dirForOutput)
+  : Parameters{bgaParams},
+    default_indiv{featureBasesPtrs},
+    ios{dirForOutput} {
 
   // инициализируем объекты прямых задач в crew
   for (auto & worker: crew) {
@@ -53,18 +57,22 @@ BGA::Task<StraightTask_t>::Task(const StraightTask_t&                    stRef,
 
   ios.CSout.open(output_dir + "RT/current/leaders_C.txt", std::ios_base::out);
   if (!ios.CSout) {
-    std::cout << "\n !!!stream for coeficients was not allocated for some reason.\n Care to attend!";
-    getchar();
+    std::cerr << "\n !!!stream for coefficients was not allocated"
+              << " for some reason.\n Throwing exception!";
+    throw external_file_allocation_error();
+    // getchar();
     return;
   }
 
-  ios.CSout << '#' << "mu = " << mu << "\t"
-            << "d = " << rc << "\t"
+  ios.CSout << '#' 
+            << "mutation_param = " << mutation_val << "\t"
+            << "recomb_param = " << recombination_val << "\t"
             << "N_gen" << amount_of_iterations << "\t"
             << "population : " << p_0 << " -> " << p << std::endl;
 
   ios.CSout << "#";
-  for (size_t i = 0; i <= amount_of_attributes; i++) ios.CSout << Workers[0].CoefsToVariate[i]->name << "\t";
+  for (size_t i = 0; i <= amount_of_attributes; i++) 
+    ios.CSout << Workers[0].CoefsToVariate[i]->name << "\t";
 
   ios.CSout << std::endl;
 
@@ -72,7 +80,8 @@ BGA::Task<StraightTask_t>::Task(const StraightTask_t&                    stRef,
 
   ios.Fout.open(output_dir + "RT/current/leaders_F.txt", std::ios_base::out);
   if (!ios.Fout) {
-    std::cout << "\n !!!stream for F-values was not allocated for some reason.\n Care to attend!";
+    std::cerr << "\n !!!stream for dfi-values were not allocated"
+              << " for some reason.\n Throwing exception!";
     getchar();
     return;
   }
@@ -81,18 +90,17 @@ BGA::Task<StraightTask_t>::Task(const StraightTask_t&                    stRef,
 
 
 
-template <typename StraightTask_t> void
-BGA::Task<StraightTask_t>::SolveForOutput() {
+TEMPLATE_BGA_TASK(void)::SolveForOutput() {
   using namespace common;
 
   // кол-во особей генерируемых от исходных границ после отбора
-  unsigned int amount_of_newbies = newly_recreated_fraction * p;
+  unsigned int amount_of_newbies = newly_recreated_fraction * m_params.regular_p;
 
   // кол-во особей после отбора
-  unsigned int amount_of_favorites = sorted_fraction * p;
+  unsigned int amount_of_favorites = sorted_fraction * m_params.regular_p;
 
   // кол-во, до которого можно пополнять популяцию перед появлением "новичков"
-  unsigned int quoted_amount_for_reproduction = p - amount_of_newbies;
+  unsigned int quoted_amount_for_reproduction = m_params.regular_p - amount_of_newbies;
 
   assert(amount_of_newbies + amount_of_favorites > 100);
 
@@ -154,7 +162,7 @@ BGA::Task<StraightTask_t>::SolveForOutput() {
 
     // 5*. Accepting new members to the Population
     for (size_t cur_indiv_idx = quoted_amount_for_reproduction;
-                cur_indiv_idx <= p;
+                cur_indiv_idx <= m_params.regular_p;
                 ++cur_indiv_idx) {
       for (size_t j = 0; j <= amount_of_attributes; ++j) {
         Population[cur_indiv_idx].RandomiseCoef(j, bounds[0][j], bounds[1][j]);
@@ -186,8 +194,8 @@ BGA::Task<StraightTask_t>::SolveForOutput() {
 
 }  // Task::SolveForOutput()
 
-template <typename StraightTask_t> void 
-BGA::Task<StraightTask_t>::engage(const size_t first_indiv_idx,
+
+TEMPLATE_BGA_TASK(void)::engage(const size_t first_indiv_idx,
                                   const size_t last_indiv_idx) {
 
   for (size_t worker_idx = 0;
@@ -204,8 +212,7 @@ BGA::Task<StraightTask_t>::engage(const size_t first_indiv_idx,
 
 
 // /* // Recombine
-template<typename StraightTask_t> void
-BGA::Task<StraightTask_t>::Recombine(Individ& Ind) {
+TEMPLATE_BGA_TASK(void)::Recombine(Individ& Ind) {
   size_t prns[] = {(size_t)(random(1.0, amount_of_favorites)), (size_t)(random(1.0, amount_of_favorites))};
 
   for (size_t j = 0; j <= amount_of_attributes; ++j) {
@@ -219,8 +226,7 @@ BGA::Task<StraightTask_t>::Recombine(Individ& Ind) {
 
 
 // /* // Mutate
-template<typename StraightTask_t> void 
-BGA::Task<StraightTask_t>::Mutate(Individ& Ind) {
+TEMPLATE_BGA_TASK(void)::Mutate(Individ& Ind) {
   for (size_t j = 0; j <= amount_of_attributes; j++) {
     bool isDeviationToTheRight = static_cast<int32_t>(random(1.0, 100.0)) % 2;
     double gamma = random(0.0, 1.0);
@@ -233,5 +239,4 @@ BGA::Task<StraightTask_t>::Mutate(Individ& Ind) {
   } 
 } // */
 
-
-}  // namespace ReverseTask
+#undef TEMPLATE_BGA_TASK

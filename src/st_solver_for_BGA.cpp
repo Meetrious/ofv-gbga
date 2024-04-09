@@ -1,4 +1,5 @@
 #include <ofv_bga/st_solver_for_BGA.h>
+
 #include <string>
 #include <sstream>
 #include <exception>
@@ -7,19 +8,19 @@
 #include <fstream>
 #include <iostream>
 
-namespace StraightTask {
-
 #define ST_FOR_BGA(RETURN_TYPE) \
   template<typename STBase, typename coefType, class varType> RETURN_TYPE\
   StraightTaskForBGA<STBase, coefType, varType>
 
+namespace StraightTask {
 
-ST_FOR_BGA()::StraightTaskForBGA
-  (const vector<featureBaseCPtr>& control_constants_base_ptrs,
-   const vector<varValueBaseCPtr>& control_variables_base_ptrs) {
+ST_FOR_BGA()::StraightTaskForBGA(const STBase & base_st,
+                                 const vector<featureBaseCPtr>& control_constants_base_ptrs,
+                                 const vector<controlVarBaseCPtr>& control_variables_base_ptrs)
+  : STBase(base_st) {
 
   if (control_constants_base_ptrs.empty() or
-     control_variables_base_ptrs.empty()) {
+      control_variables_base_ptrs.empty()) {
     // кина не будет
   }
   
@@ -31,7 +32,7 @@ ST_FOR_BGA()::StraightTaskForBGA
     // варьировать нечего, решать нельзя, бросаем исключение
   }
 
-  for(const auto& feat_base_ptr: control_constants_base_ptrs) {
+  for (const auto& feat_base_ptr: control_constants_base_ptrs) {
     if (coef_map.end() == coef_map.find(feat_base_ptr->m_base_name.c_str())) {
       // в списке размапленных коэффициентов не нашлось текущего m_base_name.c_str()
 
@@ -76,7 +77,6 @@ ST_FOR_BGA(void)::recognize_collectable_iterations() {
 
     iteration_idxs.clear();
     
-    // если 
     assert(true == row.m_data.empty());
 
     for (auto & dat: row.m_data) {
@@ -182,7 +182,7 @@ ST_FOR_BGA(double)::SolveForBGA() {
       // X[1],X[2]... next step further in multistep-methods
       STBase::NodeShift();
 
-    }  // end of the cycle processing current gap in <step_method>
+    }  // for in the gap
 
     ++current_gap;
 
@@ -192,7 +192,7 @@ ST_FOR_BGA(double)::SolveForBGA() {
       STBase::Mthd.X_init = (*STBase::Mthd.X_sol);
       Nj = 1;
     }
-  }
+  }  // while among gaps 
   
   return calculate_dfi();
 
@@ -252,7 +252,8 @@ synched_data_storage::base::base(const char* name,
 }
 
 synched_data_storage::synched_data_storage
-(const synched_data_storage::base::CnstPtr & ptr_to_base, const double* ptr_to_sol)
+                  (const synched_data_storage::base::CnstPtr & ptr_to_base,
+                   const double* ptr_to_sol)
   : m_ptr_to_base(ptr_to_base),
     m_data(ptr_to_base->m_src_data),
     cur_dat_to_fill(m_data.begin()),
@@ -266,3 +267,5 @@ synched_data_storage::reset_iterators() {
 }
 
 }  // namespace StraightTask
+
+#undef ST_FOR_BGA

@@ -1,24 +1,25 @@
-#include <reverse_task/BGA/evo_pipe.h>
+#include <ofv_bga/evo_pipe.h>
 #include <exception>
 #include <string>
 
-namespace ReverseTask::BGA {
+namespace BGA {
   using std::shared_ptr;
   using std::weak_ptr;
+  using std::vector;
 
 #define ST_THR_TEMPLATE(RETURN_TYPE) \
   template <typename StraightTask_t> RETURN_TYPE\
   StraightTaskSolverThread<StraightTask_t>
 
-ST_THR_TEMPLATE(void)::PrepairToWork(
-    const shared_ptr<vector<Individ>> & ptr_to_population,
-    const uint16_t amount_of_threads) {
-  // m_static.ptr_to_population = ptr_to_population;
-  current_amount_of_workers = amount_of_threads;
-  // STM.Mthd.Set(N, gap_width, full_amount_of_gaps); 
-  // STM.PrepairTheTask();
-  // F.GatherData();
-}
+// ST_THR_TEMPLATE(void)::PrepairToWork(
+//     const shared_ptr<vector<Individ>> & ptr_to_population,
+//     const uint16_t amount_of_threads) {
+//   // m_static.ptr_to_population = ptr_to_population;
+//   current_amount_of_workers = amount_of_threads;
+//   // STM.Mthd.Set(N, gap_width, full_amount_of_gaps); 
+//   // STM.PrepairTheTask();
+//   // F.GatherData();
+// }
 
 ST_THR_TEMPLATE(void)::retrieve_straight_task(
     StraightTask_t && fully_prepaired_straight_task) {
@@ -84,4 +85,4 @@ catch (const std::exception& e) {
 
 #undef ST_THR_TEMPLATE
 
-}  // namespace ReverseTask::BGA
+}  // namespace BGA

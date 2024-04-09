@@ -1,16 +1,18 @@
 #ifndef BGA_TASK_H_
 #define BGA_TASK_H_
 
+#include <ofv_bga/task_parameters.h>
+#include <ofv_bga/task_ios.h>
+
 #include <ofv_bga/evo_pipe.h>
 #include <ofv_bga/individ.h>
 #include <ofv_bga/st_solver_for_BGA.h>
-
 
 /* size of the std::array object that contains pointers to parameters that
  * are to variate during BGA iterations */
 #define CTV_SIZE 30
 
-namespace ReverseTask::BGA {
+namespace BGA {
 
 using std::array;
 using std::vector;
@@ -18,11 +20,8 @@ using std::vector;
 template <typename T>
 using matrix = vector<vector<T>>;
 
-template <typename StraightTask_t>
+template <typename StraightTaskType>
 class Task final {
-
-  class IOs;
-  class Parameters;
 
  private: // составляющие члены
 
@@ -50,9 +49,10 @@ class Task final {
   ~Task() = default;
 
   // единственный конструктор
-  Task(const StraightTask_t&                   stRef,
+  Task(const StraightTaskType&                 stRef,
        const vector<feature_t::base::CnstPtr>& featureBasesPtrs,
-       const Parameters&                       bgaParams);
+       const Parameters&                       bgaParams,
+       const std::string&                      dirForOutput);
 
  void ShowFforDefault();
 
@@ -87,106 +87,6 @@ class Task final {
   // void MutateCarefully(Species& Ind);
 };  // class Task
 
-// ==========================================================================================================
-
-template <typename StraightTask_t>
-class Task<StraightTask_t>::Parameters {
-  
-  template<typename T>
-  using matrix = std::vector<std::vector<double>>;
- 
- public:
-  Parameters(const unsigned iter_amount = 200,
-             const unsigned thread_amount = 1,
-             const unsigned init_pop_size = 200,
-             const unsigned reg_pop_size = 100,
-             const unsigned Sort_Fract = 30,
-             const unsigned Recr_Fract = 10,
-             const double recombination_parameter = 0.05,
-             const double mutation_parameter = 0.01);
-
-  ~Parameters() = default;
-
- protected:
-  size_t amount_of_attributes;
-
-  // list of coefficients varying in the BGA
-  // std::array<StraightTask::IConstant*, CTV_SIZE> CoefsToVariate;
-
-  /* list of boundaries within which coefficient values are initially set by RNG :
-   * dim = (2 x amount_of_attributes) */
-  matrix<double> bounds;
-
-  /** \brief первичная численность популяции 0 < p_0 */
-  unsigned int p_0;
-
-  /** \brief регулярная численность популяция 0 < p <= p_0 */
-  unsigned int p;
-
-  /** \brief процент выживания от регулярной численности
-   *  после отбора \in (0, 100) */
-  unsigned int sorted_fraction;
-
-  /** \brief процент популяции, порождаемой случайным образом
-   *  после отбора от исходных границ \in (0, 100) */
-  unsigned int newly_recreated_fraction;
-
-  /** \brief кол-во генераций поколений в одном запуске BGA */
-  size_t amount_of_iterations;
-
-  /** \brief параметр рекомбинации */
-  double rc;
-
-  /** \brief мутационный параметр */
-  double mu;
-
-  unsigned int amount_of_threads;
-
-  void display() noexcept;
-
- private:
-
-  inline unsigned int GetFraction(unsigned int general) noexcept {
-    return SortedFraction * (general / 100);
-  }
-  
-};  // class Task::Parameters
-
-// ==========================================================================================================
-
-template <typename StraightTask_t>
-class Task<StraightTask_t>::IOs final {
-  /* up to this point Individ class should be defined */
-
- public:
-  std::ofstream CSout, Fout, Statout;
-  std::ifstream Cin;
-
-  void WriteBest(const Individ& Ind);
-
-  void WriteResult(Individ& Ind);
-
-  void RestartCollector(const Parameters & RT_P,
-                        const vector<feature_t> & features);
-
-  void WriteCoefDefBorders(const vector<feature_t> & features);
-
-  void WriteOptimisedCoefs(const vector<feature_t> & features,
-                           size_t AOA);
-
-  void WriteStatData(Individ& best_Ind, const char* name);
-
-  void ReadBest(Individ& Ind);
-
-  void ConstructMultiplotScript();
-
-  void ConstructCoefEvoPlotScript(matrix<double>& bounds,
-                                  const vector<feature_t> & features);
-
-  void ConstructAberEvoPlotScript();
-
-};  // class Task::IOs
-
-}  // namespace ReverseTask::BGA
+}  // namespace BGA
 
 #endif  // BGA_TASK_H_

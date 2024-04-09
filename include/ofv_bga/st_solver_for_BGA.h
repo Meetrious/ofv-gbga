@@ -2,7 +2,7 @@
 #define ST_SOLVER_FOR_BGA_H_
 
 #include <ofv_bga/individ.h>
-#include <ofv_bga/norm_interface.h>
+#include <norm_interface.h>
 
 #include <vector>
 #include <string>
@@ -51,18 +51,17 @@ struct synched_data_storage {
 };
 
 using featureBaseCPtr = BGA::feature_t::base::CnstPtr;
-
-using varValueBaseCPtr = synched_data_storage::base::CnstPtr;
+using controlVarBaseCPtr = synched_data_storage::base::CnstPtr;
 
 template<typename STBase, typename coefType, class varType = double>
 class StraightTaskForBGA: public STBase {
 
  public:
-  StraightTaskForBGA(const vector<featureBaseCPtr>& control_constants,
-                     const vector<varValueBaseCPtr>& control_variables);
+  StraightTaskForBGA(const STBase & base_st,
+                     const vector<featureBaseCPtr>& control_constants,
+                     const vector<controlVarBaseCPtr>& control_variables);
 
-  /** 
-   *  \note метод заполняется для каждой задачи по своему. */
+  /** \note метод заполняется для каждой задачи по своему. */
   double SolveForBGA();
 
   /** \brief приминяет индивида. Вызывается перед SolveForBGA. 
@@ -70,7 +69,6 @@ class StraightTaskForBGA: public STBase {
   void apply_individ(const Individ &);
   
 private:
-  // unsigned char hash[SHA_DIGEST_LENGTH];  // hash-по именам
   
   /** \brief заполнение var_map поля указателями на места в памяти, 
    *  где будут храниться решения, привязанные, каждые к своей зависимой переменной,
@@ -87,7 +85,6 @@ private:
   std::map<const char*, const coefType> coef_map;
   vector<coefType*> ptrs_to_constants;
   
-
   /** \brief метод для заполнения iterations_when_to_collect 
    * не только итерациями решения прямой задачи,
    * на которые выпадает нужный момент времени, но и соседними с ними */

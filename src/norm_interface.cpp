@@ -1,4 +1,4 @@
-#include <reverse_task/BGA/norm_interface.h>
+#include <norm_interface.h>
 #include <cmath>
 
 #include <fstream>
