@@ -216,8 +216,9 @@ synched_data_storage::base::recognize_data_from_source() {
 	}
 
 	for (size_t i = 0; !in.eof(); ++i) {
-		in >> m_src_data.emplace_back().arg;
-		in >> m_src_data.emplace_back().standart;
+    m_src_data.emplace_back();
+		in >> m_src_data.front().arg;
+		in >> m_src_data.front().standart;
 	}
   m_src_data.shrink_to_fit();
 }
