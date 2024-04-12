@@ -1,4 +1,4 @@
-#include <ofv_bga/norm_interface.h>
+#include <norm_interface.h>
 #include <cmath>
 
 #include <fstream>

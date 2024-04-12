@@ -12,13 +12,14 @@ namespace Tools {
 
   class IException : public std::runtime_error, public Tools::SharedPointerMod<IException> {
   private:
-    using List = std::list<std::string>;
 
-    List m_childs = {};
+    std::list<std::string> m_childs = {};
 
   public:
-    static std::runtime_error createBackTrack(const std::string& file, const int& line,
-                                              const std::string& func, const std::exception& child,
+    static std::runtime_error createBackTrack(const std::string& file,
+                                              const int line,
+                                              const std::string& func,
+                                              const std::exception& child,
                                               const std::string& msg = "");
 
     IException(const std::string& msg = "");

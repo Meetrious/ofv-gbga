@@ -1,9 +1,10 @@
 #ifndef BGA_SPECIES_H_
 #define BGA_SPECIES_H_
 
+#include <common/shd_ptr_mod.h>
+
 #include <vector>
 #include <array>
-#include <common/shd_ptr_mod.h>
 #include <string>
 
 // #include <openssl/sha.h>
@@ -21,14 +22,22 @@ class feature_t final {
 
     /** \brief конструктор для полного заполнения */
     base(const std::string & name, double left, double right)
-    : m_base_name(name), m_ini_bounds({left, right}) {}
+    : m_base_name(name) {
+      if (left < right) {
+        m_ini_bounds[0] = left;
+        m_ini_bounds[1] = right;
+      } else {
+        m_ini_bounds[0] = right;
+        m_ini_bounds[1] = left;
+      }
+    }
 
    public:  /* BIG_5 \_______________________
     +                                         \*/
     base(const base &) = delete;
     base(base &&) = delete;
-    base operator=(const base &) = delete;
-    base operator=(base &&) = delete;
+    base& operator=(const base &) = delete;
+    base& operator=(base &&) = delete;
     ~base() = default;
   };
 
@@ -41,11 +50,11 @@ class feature_t final {
 
  public:  /* BIG_5 \_______________________
   +                                         \*/
-  // feature_t(const feature_t&) = default;
-  // feature_t(feature_t&&) = default;
-  // feature_t operator=(const feature_t&) = default;
-  // feature_t operator=(feature_t&&) = default;
-  // ~feature_t() = default;
+  feature_t(const feature_t&) = default;
+  feature_t(feature_t&&) = default;
+  feature_t& operator=(const feature_t&) = default;
+  feature_t& operator=(feature_t&&) = default;
+  ~feature_t() = default;
   
  public:  /* способы порождения \_________
   +                                        \*/
@@ -59,7 +68,7 @@ class feature_t final {
  public:  /* геттеры \______________________________________________________
   +                                                                          \*/
   /** \brief ссылка на std::string с именем базы */
-  inline const std::string & 
+  inline const std::string& 
   get_name() const & {return precursor->m_base_name; }
 
   inline double get_left_boundary() const noexcept {return precursor->m_ini_bounds[0];}
@@ -88,7 +97,9 @@ struct Individ final {
    * от текущего индивидуума */ 
   double m_dfi_value = -1.0;
 
-  Individ(std::vector<feature_t>&& new_features) : m_features(std::move(new_features)) {}
+  Individ(std::vector<feature_t>&& new_features) :
+    m_features(std::move(new_features)) {}
+    
   Individ(const std::vector<feature_t>& new_features) : m_features() {}
   
   Individ(const Individ&) = default;
@@ -99,7 +110,6 @@ struct Individ final {
 
    /** \brief конструктор от вектора указателей на базовые фитчи */
   Individ(const std::vector<feature_t::base::CnstPtr>& feature_bases);
-
 
   inline bool 
   operator<(const double value) const noexcept { return m_dfi_value < value; }

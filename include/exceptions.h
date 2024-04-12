@@ -1,8 +1,8 @@
 #pragma once
 #include <exception>
 
-namespace BGA
-{
+namespace BGA {
+
 	class MyException : public std::exception {
 	public:
 		virtual const char* what()const noexcept final {
@@ -20,4 +20,5 @@ namespace BGA
 		}
 
 	};
+	
 }

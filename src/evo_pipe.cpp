@@ -1,28 +1,30 @@
 #include <ofv_bga/evo_pipe.h>
-#include <exception>
+#include <exceptions.h>
+#include <iostream>
 #include <string>
 
 namespace BGA {
   using std::shared_ptr;
   using std::weak_ptr;
+  using std::vector;
 
 #define ST_THR_TEMPLATE(RETURN_TYPE) \
   template <typename StraightTask_t> RETURN_TYPE\
   StraightTaskSolverThread<StraightTask_t>
 
-ST_THR_TEMPLATE(void)::PrepairToWork(
-    const shared_ptr<vector<Individ>> & ptr_to_population,
-    const uint16_t amount_of_threads) {
-  // m_static.ptr_to_population = ptr_to_population;
-  current_amount_of_workers = amount_of_threads;
-  // STM.Mthd.Set(N, gap_width, full_amount_of_gaps); 
-  // STM.PrepairTheTask();
-  // F.GatherData();
-}
+// ST_THR_TEMPLATE(void)::PrepairToWork(
+//     const shared_ptr<vector<Individ>> & ptr_to_population,
+//     const uint16_t amount_of_threads) {
+//   // m_static.ptr_to_population = ptr_to_population;
+//   current_amount_of_workers = amount_of_threads;
+//   // STM.Mthd.Set(N, gap_width, full_amount_of_gaps); 
+//   // STM.PrepairTheTask();
+//   // F.GatherData();
+// }
 
 ST_THR_TEMPLATE(void)::retrieve_straight_task(
     StraightTask_t && fully_prepaired_straight_task) {
-  m_static.ptr_to_st = // передаём владение готовым straight-task-объектом сюда
+  ptr_to_st = // передаём владение готовым straight-task-объектом сюда
     std::make_unique<StraightTask_t>(std::move(fully_prepaired_straight_task));
 }
 
@@ -32,17 +34,16 @@ ST_THR_TEMPLATE(void)::operator() (vector<Individ> & population,
   // индекс индивидуума (набора аттрибутов) в выделенной популяции.
   size_t cur_indiv_idx = first_indiv_idx + m_worker_index;
   
-  size_t amount_of_attributes = 
-    (*m_static.ptr_to_population)[0].get_amount_of_features();
+  size_t amount_of_attributes = population[0].get_amount_of_features();
 
   while (cur_indiv_idx < last_indiv_idx) {
     // putting current individual "on the conveyor"
     for (const auto & cur_indiv: population) {
-      m_static.ptr_to_st->apply_individ(cur_indiv);
+      ptr_to_st->apply_individ(cur_indiv);
     }
 
     // calculating current dfi-value
-    population[cur_indiv_idx].dfi_value = m_static.ptr_to_st->SolveForBGA();
+    population[cur_indiv_idx].m_dfi_value = ptr_to_st->SolveForBGA();
 
     #ifdef _DEBUG
       std::cout << std::this_thread::get_id() 
@@ -50,7 +51,7 @@ ST_THR_TEMPLATE(void)::operator() (vector<Individ> & population,
                 << " - " << cur_indiv_idx << " indiv\n"
                 << std::endl;
     #endif
-    cur_indiv_idx += amount_of_threads;
+    cur_indiv_idx += current_amount_of_workers;
   }
 }  // operator()(vector<Individ>, size_t, size_t)
 
@@ -59,12 +60,12 @@ ST_THR_TEMPLATE(void)::start_to_work(vector<Individ> & population,
                                      const size_t first_indiv_idx,
                                      const size_t last_indiv_idx) try {
   
-  if (nullptr == m_static.ptr_to_st) {
+  if (nullptr == ptr_to_st) {
     std::stringstream error_msg;
     error_msg << "Pointer to the Straight-Task-object is empty"
-                 " at the moment of population-testing. "
-                 "You should bound st_object with a real object "
-                 " before BGA-execution via retrieve_straight_task method!"
+              << " at the moment of population-testing. "
+              << "You should bound st_object with a real object "
+              << " before BGA-execution via retrieve_straight_task method!";
     throw std::runtime_error(error_msg.str());
   }
   

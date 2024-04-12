@@ -3,7 +3,7 @@
 
 // #include <straight_task/base/Eq_base.h>
 #include <ofv_bga/individ.h>
-#include <ofv_bga/norm_interface.h>
+#include <norm_interface.h>
 
 #include <vector>
 #include <string>
@@ -11,7 +11,7 @@
 
 // #include <openssl/sha.h>
 
-namespace Apoptoz {
+namespace StraightTask {
 
   using std::vector;
 
@@ -51,60 +51,56 @@ namespace Apoptoz {
 
   };
 
-  using featureBaseCPtr =
-    BGA::feature_t::base::CnstPtr;
-
-  using varValueBaseCPtr = synched_data_storage::base::CnstPtr;
+  using featureBaseCPtr = BGA::feature_t::base::CnstPtr;
+  using controlVarBaseCPtr = synched_data_storage::base::CnstPtr;
 
   template<typename STBase, typename coefType, class varType = double>
   class StraightTaskForBGA: public STBase {
 
   public:
-    StraightTaskForBGA(const vector<featureBaseCPtr>& control_constants,
-                      const vector<varValueBaseCPtr>& control_variables);
+  StraightTaskForBGA(const STBase & base_st,
+                     const vector<featureBaseCPtr>& control_constants,
+                     const vector<controlVarBaseCPtr>& control_variables);
 
-    /** 
-     *  \note метод заполняется для каждой задачи по своему. */
-    double SolveForBGA();
+  /** \note метод заполняется для каждой задачи по своему. */
+  double SolveForBGA();
 
-    /** \brief приминяет индивида. Вызывается перед SolveForBGA. 
-     * \note метод заполнен и не требуется в коррекции от задачи к задаче */
-    void apply_individ(const Individ &);
-    
-  private:
-    // unsigned char hash[SHA_DIGEST_LENGTH];  // hash-по именам
-    
-    /** \brief заполнение var_map поля указателями на места в памяти, 
-     *  где будут храниться решения, привязанные, каждые к своей зависимой переменной,
-     *  чтобы потом вдоль их значений можно было считать невязку. 
-     * \note метод заполняется для каждой задачи по своему. */
-    void map_variables();
-    std::map<const char*, const varType> var_map;
-    vector<synched_data_storage> data_rows;
+  /** \brief приминяет индивида. Вызывается перед SolveForBGA. 
+   * \note метод заполнен и не требуется в коррекции от задачи к задаче */
+  void apply_individ(const Individ &);
+  
+private:
+  
+  /** \brief заполнение var_map поля указателями на места в памяти, 
+   *  где будут храниться решения, привязанные, каждые к своей зависимой переменной,
+   *  чтобы потом вдоль их значений можно было считать невязку. 
+   * \note метод заполняется для каждой задачи по своему. */
+  void map_variables();
+  std::map<const char*, const varType> var_map;
+  vector<synched_data_storage> data_rows;
 
-    /** \brief заполнение coef_map поля указателями на места в памяти,
-     * где хранятся константы, варьированием которых BGA сможет решать обратную задачу. 
-     * \note метод заполняется для каждой задачи по своему. */
-    void map_coefficients();
-    std::map<const char*, const coefType> coef_map;
-    vector<coefType*> ptrs_to_constants;
-    
+  /** \brief заполнение coef_map поля указателями на места в памяти,
+   * где хранятся константы, варьированием которых BGA сможет решать обратную задачу. 
+   * \note метод заполняется для каждой задачи по своему. */
+  void map_coefficients();
+  std::map<const char*, const coefType> coef_map;
+  vector<coefType*> ptrs_to_constants;
+  
+  /** \brief метод для заполнения iterations_when_to_collect 
+   * не только итерациями решения прямой задачи,
+   * на которые выпадает нужный момент времени, но и соседними с ними */
+  [[deprecated]]void recognize_collectable_iterations();
 
-    /** \brief метод для заполнения iterations_when_to_collect 
-     * не только итерациями решения прямой задачи,
-     * на которые выпадает нужный момент времени, но и соседними с ними */
-    [[deprecated]]void recognize_collectable_iterations();
+  /** \brief проход по всем ячейкам, в которых нужно собрать данные для расчёта невязки,
+   * в момент итерации Nj прямой задачи решения диф-уравнения */
+  void collect_calculation(const size_t Nj);
 
-    /** \brief проход по всем ячейкам, в которых нужно собрать данные для расчёта невязки,
-     * в момент итерации Nj прямой задачи решения диф-уравнения */
-    void collect_calculation(const size_t Nj);
+  /** \brief по расчитанным решениям прямой задачи внутри data_rows,
+   * вычисляет усреднённое относительное уклонение от установленного стандарта
+   * Вызывается в конце метода SolveForBGA. */
+  double calculate_dfi();
 
-    /** \brief по расчитанным решениям прямой задачи внутри data_rows,
-     * вычисляет усреднённое относительное уклонение от установленного стандарта
-     * Вызывается в конце метода SolveForBGA. */
-    double calculate_dfi();
-
-  };
+};
 
 }
 

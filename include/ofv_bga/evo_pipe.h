@@ -7,10 +7,13 @@
 #include <thread>
 #include <vector>
 #include <memory>
+#include <sstream>
 
 namespace BGA {
 
-using std::vector, std::thread, std::array;
+using std::vector;
+using std::thread;
+using std::array;
 
 class IAggregateControls;
 
@@ -20,7 +23,7 @@ class IAggregateControls;
  *  double SolveForBGA(...) метод, который возвращает значение функционала невязки */
 template <typename StraightTask_t>
 class StraightTaskSolverThread {
-  static size_t current_amount_of_workers = 0;
+  static size_t current_amount_of_workers;
   const size_t m_worker_index;
   std::unique_ptr<StraightTask_t> ptr_to_st = nullptr;
 
@@ -37,11 +40,11 @@ class StraightTaskSolverThread {
   //  // list of coefficients varying in the BGA
   // array<StraightTask::IConstant*, CTV_SIZE> CoefsToVariate;
 
-  StraightTaskSolverThread(): m_worker_index(global_amount_of_workers++) {}
+  StraightTaskSolverThread(): m_worker_index(++current_amount_of_workers) {}
 
   /** \brief настраивается прямая задача, которую он будет решать. */
-  void PrepairToWork(const std::shared_ptr<vector<Individ>> & ptr_to_population,
-                     const uint16_t amount_of_threads);
+  // void PrepairToWork(const std::shared_ptr<vector<Individ>> & ptr_to_population,
+  //                    const uint16_t amount_of_threads);
 
   void retrieve_straight_task(StraightTask_t && fully_prepaired_straight_task);
 
@@ -58,7 +61,7 @@ class StraightTaskSolverThread {
                      const size_t first_indiv_idx,
                      const size_t last_indiv_idx);
 
-  inline void wait_utill_ready() { if (thr.joinable()) thr.join(); }
+  inline void wait_utill_ready() { if (m_thr.joinable()) m_thr.join(); }
 
   ~StraightTaskSolverThread();
 
