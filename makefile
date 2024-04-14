@@ -9,7 +9,7 @@ BGA_TASK_MODULES := $(foreach NAME,$(BGA_TASK_MODULES_NAMES),src/${NAME}.o)
 
 
 solver_executable_test: $(BGA_TASK_MODULES)
-	g++ -std=c++20 src/tests/st_solver_test.cpp ../program/libs/StraightTask.cpp ../tiny_instruments/src/easy_random.cc $^ $(SET_LOCAL_INCLUDE_DIR) $(SET_EXTERNAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
+	g++ -std=c++20 src/tests/st_solver_test.cpp ../program/libs/StraightTask.cpp ../tiny_instruments/src/easy_random.cc $^ $(SET_LOCAL_INCLUDE_DIR) $(SET_EXTERNAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@
 
 bga_st_solver_test:
 	g++ -c src/tests/st_solver_test.cpp $(SET_LOCAL_INCLUDE_DIR) $(SET_EXTERNAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
@@ -21,7 +21,7 @@ evo_pipe:
 	g++ -c src/evo_pipe.cpp $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
 bga_st_solver:
-	g++ -c src/st_solver_for_BGA.cpp $(SET_LOCAL_INCLUDE_DIR) -o $@_module.o
+	g++ -c src/st_solver_for_BGA.cpp $(SET_LOCAL_INCLUDE_DIR) $(SET_EXTERNAL_INCLUDE_DIR) -o $@_module.o
 
 # compiles
 individ:
