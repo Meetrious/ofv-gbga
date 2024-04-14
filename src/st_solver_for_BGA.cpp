@@ -114,12 +114,12 @@ ST_FOR_BGA(void)::apply_individ(const Individ & indiv) {
   }
 
   for (size_t i = 0; i < ptrs_to_constants.size(); ++i) {
-    ptrs_to_constants[i]->value = indiv.m_features[i].m_value;
+    *(ptrs_to_constants[i]) = indiv.m_features[i].m_value;
   }
 
 }
 
-ST_FOR_BGA(void)::collect_calculation(const size_t grid_knot) {
+/*ST_FOR_BGA(void)::collect_calculation(const size_t grid_knot) {
   for (auto & row: data_rows) {
     if (grid_knot == (*row.target_iteration)) {
       row.cur_dat_to_fill->arg = STBase::Mthd.X_sol.tj;
@@ -129,7 +129,7 @@ ST_FOR_BGA(void)::collect_calculation(const size_t grid_knot) {
       row.target_iteration++;
     }
   }
-}
+} // */
 
 /* --------------------------- custom-definitions ---------------------------*/
 
@@ -149,7 +149,7 @@ ST_FOR_BGA(double)::SolveForBGA() {
     }
   });
   
-  return STBase::calculate_dfi();
+  return calculate_dfi();
 }  // StraightTaskForBGA::SolveForBGA()
 
 ST_FOR_BGA(void)::map_variables() {
@@ -161,13 +161,13 @@ ST_FOR_BGA(void)::map_variables() {
 }
 
 ST_FOR_BGA(void)::map_coefficients() {
-  for (auto &pair : STBase::coefs) {
-    coef_map.emplace(pair.first, &pair.second);
+  for (auto &pair : STBase::m_coefs) {
+    coef_map.emplace(pair.first.c_str(), &pair.second);
   }
-  coef_map.emplace("tau1", &(STBase::tau[0]));
-  coef_map.emplace("tau2", &(STBase::tau[1]));
-  coef_map.emplace("tau3", &(STBase::tau[2]));
-  coef_map.emplace("tau4", &(STBase::tau[3]));
+  coef_map.emplace("tau1", &(STBase::m_tau[0]));
+  coef_map.emplace("tau2", &(STBase::m_tau[1]));
+  coef_map.emplace("tau3", &(STBase::m_tau[2]));
+  coef_map.emplace("tau4", &(STBase::m_tau[3]));
 }
 
 /* ========================== synched-data-section ========================== */
@@ -237,5 +237,10 @@ synched_data_storage::reset_iterators() {
 }
 
 }  // namespace StraightTask
+
+#include <StraightTask.h>
+
+template
+class StraightTask::StraightTaskForBGA<Apoptoz::StraightTask, double, double>;
 
 #undef ST_FOR_BGA
