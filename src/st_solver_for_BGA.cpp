@@ -120,12 +120,17 @@ ST_FOR_BGA(void)::apply_individ(const Individ & indiv) {
 
 ST_FOR_BGA(void)::collect_calculation(const size_t grid_knot) {
   for (auto & row: data_rows) {
+    
+    const bool target_iteration_reached_the end =
+      target_iteration == row.m_ptr_to_base->iteration_when_to_collect.end();
+
+    if (target_iteration_reached_the) continue;
     if (grid_knot == (*row.target_iteration)) {
       row.cur_dat_to_fill->arg = STBase::Mthd.X_sol.tj;
       row.cur_dat_to_fill->calculation = (*row.m_ptr_to_sol);
 
-      row.cur_dat_to_fill++;
-      row.target_iteration++;
+      ++row.cur_dat_to_fill;
+      ++row.target_iteration;
     }
   }
 }
@@ -217,8 +222,8 @@ synched_data_storage::base::recognize_data_from_source() {
 
 	for (size_t i = 0; !in.eof(); ++i) {
     m_src_data.emplace_back();
-		in >> m_src_data.front().arg;
-		in >> m_src_data.front().standart;
+		in >> m_src_data.back().arg;
+		in >> m_src_data.back().standart;
 	}
   m_src_data.shrink_to_fit();
 }
@@ -235,12 +240,12 @@ synched_data_storage::base::print_info() {
 
 synched_data_storage::base::base(const char* name,
                                  const char* src_path,
-                                 const size_t st_grid_step,
+                                 const double st_grid_step,
                                  const double arg_0)
  : m_name(name), m_path_to_source_with_data(src_path) {
   recognize_data_from_source();
   
-  #ifdef DEBUG
+  #ifdef DEBUG_OUTPUT
     print_info();
   #endif
 

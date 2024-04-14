@@ -27,7 +27,7 @@ struct synched_data_storage {
 
     base(const char* name,
          const char* src_path,
-         const size_t st_grid_step,
+         const double st_grid_step,
          const double arg_0 = 0.0);
 
    private:  // процедуры конструктора
@@ -43,7 +43,6 @@ struct synched_data_storage {
 
   vector<synced_datum> m_data;
   vector<synced_datum>::iterator cur_dat_to_fill;
-
   vector<size_t>::const_iterator target_iteration;
 
   void reset_iterators();
@@ -75,14 +74,14 @@ private:
    *  чтобы потом вдоль их значений можно было считать невязку. 
    * \note метод заполняется для каждой задачи по своему. */
   void map_variables();
-  std::map<const char*, const varType> var_map;
+  std::map<const char*, const varType*> var_map;
   vector<synched_data_storage> data_rows;
 
   /** \brief заполнение coef_map поля указателями на места в памяти,
    * где хранятся константы, варьированием которых BGA сможет решать обратную задачу. 
    * \note метод заполняется для каждой задачи по своему. */
   void map_coefficients();
-  std::map<const char*, const coefType> coef_map;
+  std::map<const char*, const coefType*> coef_map;
   vector<coefType*> ptrs_to_constants;
   
   /** \brief метод для заполнения iterations_when_to_collect 
