@@ -78,6 +78,7 @@ private:
   void map_variables();
   std::map<const char*, const varType> var_map;
   vector<synched_data_storage> data_rows;
+  vector<double> current_solution;
 
   /** \brief заполнение coef_map поля указателями на места в памяти,
    * где хранятся константы, варьированием которых BGA сможет решать обратную задачу. 
