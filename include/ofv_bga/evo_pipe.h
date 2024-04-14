@@ -27,10 +27,10 @@ class StraightTaskSolverThread {
   const size_t m_worker_index;
   std::unique_ptr<StraightTask_t> ptr_to_st = nullptr;
 
-  /** \brief подставляет индивид в объект задачи,
-   * который лежит по ptr_to_st, и вызывает решатель прямой задачи,
-   * в следствие которой будет получено невязка = dif_value
-   * Это происходит для текущего StraightTaskSolverThread-объекта-работника  */
+  /** \brief подставляет индивид в объект задачи под указателем ptr_to_st,
+   * и вызывает решатель прямой задачи, в следствие которой будет получено невязка = dif_value
+   * Это происходит для текущего StraightTaskSolverThread-объекта-работника
+   * вдоль всей популяции индивидуумов, начиная с first_indiv_idx */
   void operator()(vector<Individ> & population,
                   const size_t first_indiv_idx,
                   const size_t last_indiv_idx);

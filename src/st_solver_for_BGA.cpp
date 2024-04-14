@@ -120,12 +120,17 @@ ST_FOR_BGA(void)::apply_individ(const Individ & indiv) {
 
 /*ST_FOR_BGA(void)::collect_calculation(const size_t grid_knot) {
   for (auto & row: data_rows) {
+    
+    const bool target_iteration_reached_the_end =
+      row.target_iteration == row.m_ptr_to_base->iterations_when_to_collect.end();
+
+    if (target_iteration_reached_the_end) continue;
     if (grid_knot == (*row.target_iteration)) {
       row.cur_dat_to_fill->arg = STBase::Mthd.X_sol.tj;
       row.cur_dat_to_fill->calculation = (*row.m_ptr_to_sol);
 
-      row.cur_dat_to_fill++;
-      row.target_iteration++;
+      ++row.cur_dat_to_fill;
+      ++row.target_iteration;
     }
   }
 } // */
@@ -218,7 +223,7 @@ synched_data_storage::base::base(const char* name,
  : m_name(name), m_path_to_source_with_data(src_path) {
   recognize_data_from_source();
   
-  #ifdef DEBUG
+  #ifdef DEBUG_OUTPUT
     print_info();
   #endif
 
