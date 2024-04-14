@@ -59,4 +59,7 @@ int main() {
     feature_bases.emplace_back(std::make_shared<BGA::feature_t::base>("a3", 5*0.00001, 15*0.00001));
     feature_bases.emplace_back(std::make_shared<BGA::feature_t::base>("a1r", 4, 6));
     feature_bases.emplace_back(std::make_shared<BGA::feature_t::base>("a2r", 0.2, 0.6));
+
+    StraightTask::StraightTaskForBGA<decltype(st_task), double, double> st_task_for_bga(st_task, feature_bases, storage_bases);
+    
 }

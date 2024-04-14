@@ -2,15 +2,17 @@
 T_INST_INCLUDE_DIR = ../tiny_instruments/include
 SET_LOCAL_INCLUDE_DIR = -I include
 SET_EXTERNAL_INCLUDE_DIR = -I ../program/includes
-RT_DIR := src
 
 # модули для bga_task
-BGA_TASK_MODULES_NAMES := task parameters ios
-BGA_TASK_MODULES := $(foreach NAME,$(BGA_TASK_MODULES_NAMES),${RT_DIR}${NAME}.cpp)
+BGA_TASK_MODULES_NAMES := task evo_pipe st_solver_for_BGA individ norm_interface task_parameters task_ios
+BGA_TASK_MODULES := $(foreach NAME,$(BGA_TASK_MODULES_NAMES),src/${NAME}.o)
 
+
+solver_executable_test: $(BGA_TASK_MODULES)
+	g++ -std=c++20 src/tests/st_solver_test.cpp ../program/libs/StraightTask.cpp ../tiny_instruments/src/easy_random.cc $^ $(SET_LOCAL_INCLUDE_DIR) $(SET_EXTERNAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
 bga_st_solver_test:
-	g++ -c src/tests/st_solver_test.cpp $(SET_LOCAL_INCLUDE_DIR) $(SET_EXTERNAL_INCLUDE_DIR) -o $@_module.o
+	g++ -c src/tests/st_solver_test.cpp $(SET_LOCAL_INCLUDE_DIR) $(SET_EXTERNAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
 bga_task:
 	g++ -c src/task.cpp $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
@@ -37,6 +39,10 @@ bga_parameters:
 bga_ios:
 	g++ -c src/task_ios.cpp $(SET_LOCAL_INCLUDE_DIR) -o $@_module.o
 
+%.o: %.cpp
+	@echo "$(BLACK_BG)$(YELLOW_TXT)\n compiling non-executable-binary-object for $<"
+	g++ -c $< $(SET_LOCAL_INCLUDE_DIR) $(SET_EXTERNAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@
+	@echo "$(RESET_COLORS)"
 
 clean:
 	rm -rf *.o *.out
