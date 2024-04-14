@@ -134,21 +134,22 @@ ST_FOR_BGA(void)::apply_individ(const Individ & indiv) {
 
 ST_FOR_BGA(double)::SolveForBGA() {
 
-  /** DELETE IT */std::cout<<data_rows.size()<<"\n";
-
   STBase::solve([this](std::vector<double> solution, size_t iter, double arg){
-    this->current_solution = solution;
+    current_solution = solution;
+    current_solution[1] *= 126.083/846.705;
+    current_solution[2] *= 85.0515/85.401;
+    current_solution[4] *= 218.16/666.139;
 
-    for (auto & row: this->data_rows) {
+    for (auto & row: data_rows) {
+
       if (row.m_ptr_to_base->iterations_when_to_collect.end() == row.target_iteration)
       {
         continue;
       }
       
       if (iter == (*row.target_iteration)) {
-        /** DELETE IT */std::cout<<iter<<"\n";
         row.cur_dat_to_fill->arg = arg;
-        row.cur_dat_to_fill->calculation = (*row.m_ptr_to_sol);
+        row.cur_dat_to_fill->calculation = *(row.m_ptr_to_sol); /// TODO: Segmentation fault: (*row.m_ptr_to_sol)
 
         row.cur_dat_to_fill++;
         row.target_iteration++;
@@ -156,12 +157,12 @@ ST_FOR_BGA(double)::SolveForBGA() {
     }
   });
 
-  /** DELETE IT */std::cout<<"after solve\n";
-
   return calculate_dfi();
 }  // StraightTaskForBGA::SolveForBGA()
 
 ST_FOR_BGA(void)::map_variables() {
+  current_solution.assign(5, 0.0);
+
   var_map.emplace("ROS", &(current_solution[0]));
   var_map.emplace("p53", &(current_solution[1]));
   var_map.emplace("Sirt1", &(current_solution[2]));
@@ -198,13 +199,6 @@ synched_data_storage::base::recognize_data_from_source() {
 		in >> m_src_data.back().standart;
 	}
   m_src_data.shrink_to_fit();
-  /** DELETE IT : START */
-  for (auto el : m_src_data)
-  {
-    std::cout<<el.arg<<" "<<el.standart<<"\n";
-  }
-  std::cout<<"\n\n";
-  /** DELETE IT : END */
 }
 
 void
@@ -228,19 +222,11 @@ synched_data_storage::base::base(const char* name,
     print_info();
   #endif
 
-  /** DELETE IT */std::cout<<name<<" ";
   if (!m_src_data.empty()) {
     for (const auto& dat: m_src_data) {
       iterations_when_to_collect.emplace_back(std::abs(dat.arg - arg_0)/st_grid_step);
     }
     iterations_when_to_collect.shrink_to_fit();
-    /** DELETE IT : START */
-    for (auto el : iterations_when_to_collect)
-    {
-      std::cout<<el<<" ";
-    }
-    std::cout<<"\n";
-    /** DELETE IT : END */
   }
 }
 
@@ -262,9 +248,7 @@ synched_data_storage::reset_iterators() {
 
 }  // namespace StraightTask
 
-#include <StraightTask.h>
-
-template
-class StraightTask::StraightTaskForBGA<Apoptoz::StraightTask, double, double>;
+/** \note: явное инстанцирование под конкретную задачу, от которого надо избавиться */
+#include <external/st_specialization.h>
 
 #undef ST_FOR_BGA

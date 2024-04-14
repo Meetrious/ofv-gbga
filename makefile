@@ -9,7 +9,7 @@ BGA_TASK_MODULES := $(foreach NAME,$(BGA_TASK_MODULES_NAMES),src/${NAME}.o)
 
 
 solver_executable_test: $(BGA_TASK_MODULES)
-	g++ -DDEBUG -g -O0 -std=c++20 src/tests/st_solver_test.cpp ../program/libs/StraightTask.cpp ../tiny_instruments/src/easy_random.cc $^ $(SET_LOCAL_INCLUDE_DIR) $(SET_EXTERNAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@
+	g++ -std=c++20 src/tests/st_solver_test.cpp ../program/libs/StraightTask.cpp ../tiny_instruments/src/easy_random.cc $^ $(SET_LOCAL_INCLUDE_DIR) $(SET_EXTERNAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@
 
 bga_st_solver_test:
 	g++ -c src/tests/st_solver_test.cpp $(SET_LOCAL_INCLUDE_DIR) $(SET_EXTERNAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o

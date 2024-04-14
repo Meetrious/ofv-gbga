@@ -64,4 +64,6 @@ int main() {
 
     StraightTask::StraightTaskForBGA<decltype(st_task), double, double> st_task_for_bga(st_task, feature_bases, storage_bases);
     std::cout<<st_task_for_bga.SolveForBGA();
+
+    st_task_for_bga.draw_functions({"p53", "Sirt1", "Bax"});
 }
