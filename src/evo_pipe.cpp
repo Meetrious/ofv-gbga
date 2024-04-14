@@ -33,16 +33,10 @@ ST_THR_TEMPLATE(void)::operator() (vector<Individ> & population,
                                    const size_t last_indiv_idx) {
   // индекс индивидуума (набора аттрибутов) в выделенной популяции.
   size_t cur_indiv_idx = first_indiv_idx + m_worker_index;
-  
-  size_t amount_of_attributes = population[0].get_amount_of_features();
 
   while (cur_indiv_idx < last_indiv_idx) {
-    // putting current individual "on the conveyor"
-    for (const auto & cur_indiv: population) {
-      ptr_to_st->apply_individ(cur_indiv);
-    }
 
-    // calculating current dfi-value
+    ptr_to_st->apply_individ(population[cur_indiv_idx]);
     population[cur_indiv_idx].m_dfi_value = ptr_to_st->SolveForBGA();
 
     #ifdef _DEBUG

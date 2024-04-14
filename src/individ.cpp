@@ -49,7 +49,7 @@ Individ::replace_with_combination_of(const Individ& lhs,
                                      const double recomb_param) {
   // если this участвует в рекомбинации, то this не должен быть продуктом рекомбинации
   assertm((this == &lhs) or (this == &rhs),
-          "individ is used for recombination yet participates in it himself");
+          "individ is used for recombination yet participates in it");
 
   if (&lhs == &rhs) *this = lhs.m_features;  // self reproduction
 
@@ -65,7 +65,7 @@ Individ::replace_with_combination_of(const Individ& lhs,
 // ================================================================================
 
 [[nodiscard]] feature_t
-operator*(const feature_t& lhs, const feature_t& rhs) {
+BGA::operator*(const feature_t& lhs, const feature_t& rhs) {
   if (&lhs == &rhs) return lhs;
 
   if (!lhs.has_the_same_base_as(rhs)) {
@@ -80,7 +80,7 @@ operator*(const feature_t& lhs, const feature_t& rhs) {
 }
 
 [[nodiscard]] Individ
-operator*(const Individ& lhs, const Individ& rhs) {
+BGA::operator*(const Individ& lhs, const Individ& rhs) {
   if (&lhs == &rhs) return Individ(lhs);  // self reproduction
   size_t amount_of_features = lhs.m_features.size();
   std::vector<feature_t> new_features;
@@ -93,7 +93,7 @@ operator*(const Individ& lhs, const Individ& rhs) {
 }
 
 [[nodiscard]] double
-distance(const feature_t& one, const feature_t& another) {
+BGA::distance(const feature_t& one, const feature_t& another) {
   if (!one.has_the_same_base_as(another)) {
     std::stringstream error_msg;
     error_msg << "Feature mismatch occured! you're trying to get distance between"
