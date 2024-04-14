@@ -203,7 +203,7 @@ synched_data_storage::base::print_info() {
 
 synched_data_storage::base::base(const char* name,
                                  const char* src_path,
-                                 const size_t st_grid_step,
+                                 const double st_grid_step,
                                  const double arg_0)
  : m_name(name), m_path_to_source_with_data(src_path) {
   recognize_data_from_source();

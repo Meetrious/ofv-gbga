@@ -1,12 +1,16 @@
 
 T_INST_INCLUDE_DIR = ../tiny_instruments/include
 SET_LOCAL_INCLUDE_DIR = -I include
+SET_EXTERNAL_INCLUDE_DIR = -I ../program/includes
 RT_DIR := src
 
 # модули для bga_task
 BGA_TASK_MODULES_NAMES := task parameters ios
 BGA_TASK_MODULES := $(foreach NAME,$(BGA_TASK_MODULES_NAMES),${RT_DIR}${NAME}.cpp)
 
+
+bga_st_solver_test:
+	g++ -c src/tests/st_solver_test.cpp $(SET_LOCAL_INCLUDE_DIR) $(SET_EXTERNAL_INCLUDE_DIR) -o $@_module.o
 
 bga_task:
 	g++ -c src/task.cpp $(SET_LOCAL_INCLUDE_DIR) -o $@_module.o

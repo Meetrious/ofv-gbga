@@ -28,7 +28,7 @@ namespace StraightTask {
 
       base(const char* name,
           const char* src_path,
-          const size_t st_grid_step,
+          const double st_grid_step,
           const double arg_0 = 0.0);
 
     private:  // процедуры конструктора
