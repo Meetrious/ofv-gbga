@@ -1,5 +1,5 @@
 
-T_INST_INCLUDE_DIR = ~/dev/tiny_instruments/include/
+T_INST_INCLUDE_DIR = ../tiny_instruments/include
 SET_LOCAL_INCLUDE_DIR = -I include
 RT_DIR := src
 
@@ -21,7 +21,7 @@ evo_pipe:
 
 # compiles
 individ:
-	g++ -c src/individ.cpp $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) 
+	g++ -c src/individ.cpp $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
 # compiles
 norm_interface:
