@@ -39,11 +39,16 @@ bga_parameters:
 bga_ios:
 	g++ -c src/task_ios.cpp $(SET_LOCAL_INCLUDE_DIR)  -I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
+by_cmake:
+	cmake -Wno-dev -B ./build -S .
+	make -C build
+	
 %.o: %.cpp
 	@echo "$(BLACK_BG)$(YELLOW_TXT)\n compiling non-executable-binary-object for $<"
 	g++ -c $< $(SET_LOCAL_INCLUDE_DIR) $(SET_EXTERNAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@
 	@echo "$(RESET_COLORS)"
 
 clean:
+	rm -rf ./build/*
 	rm -rf *.o *.out
 	rm -rf */*.o */*.out
