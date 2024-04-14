@@ -52,7 +52,7 @@ class feature_t final {
   +                                         \*/
   feature_t(const feature_t&) = default;
   feature_t(feature_t&&) = default;
-  feature_t& operator=(const feature_t&) = delete;
+  feature_t& operator=(const feature_t&) = default;
   feature_t& operator=(feature_t&&) = default;
   ~feature_t() = default;
   
@@ -98,7 +98,7 @@ class feature_t final {
  
   /** \brief const shared_ptr на базу 
    * с границами порождения для m_value и именем характеристики */
-  const base::CnstPtr precursor;
+  base::CnstPtr precursor;
 };
 
 /** \brief порождение перемножением */
@@ -125,14 +125,18 @@ struct Individ final {
     m_features() {}
 
   /** \brief copy-assignment для переопределение вектором характеристик */
-  Individ& operator=(const std::vector<feature_t>& another_features);
+  inline Individ& operator=(const std::vector<feature_t>& another_features) {
+    m_features = another_features; return *this;
+  }
 
   /** \brief move-assignment для переопределение вектором характеристик */
-  Individ& operator=(std::vector<feature_t>&& another_features);
+  inline Individ& operator=(std::vector<feature_t>&& another_features) {
+      m_features = std::move(another_features); return *this;
+  }
   
   Individ(const Individ&) = default;
   Individ(Individ&&) = default;
-  Individ& operator=(const Individ&) = delete;
+  Individ& operator=(const Individ&) = default;
   Individ& operator=(Individ&&) = default;
   ~Individ() = default;
 
