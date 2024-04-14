@@ -65,6 +65,7 @@ ST_FOR_BGA()::StraightTaskForBGA(const STBase & base_st,
 
 }
 
+/* // Это не моя реализация
 ST_FOR_BGA(void)::recognize_collectable_iterations() {
 
   const double& grid_step = STBase::Mthd;
@@ -94,7 +95,7 @@ ST_FOR_BGA(void)::recognize_collectable_iterations() {
       iteration_idxs.erase(iteration_idxs.begin());
     }
   }
-}
+} //*/
 
 ST_FOR_BGA(double)::calculate_dfi() {
   double res = 0.0;
@@ -133,26 +134,30 @@ ST_FOR_BGA(void)::collect_calculation(const size_t grid_knot) {
 /* --------------------------- custom-definitions ---------------------------*/
 
 ST_FOR_BGA(double)::SolveForBGA() {
-  STBase::solve();
 
-  for (auto row : STBase::data_rows) {
-    row.cur_it = row.data.begin();
+  STBase::solve([this](std::vector<double> solution, size_t iter, double arg){
+    current_solution = solution;
 
-    for (auto when_to_collect : row.base_info->iterations_when_to_collect) {
-      row.cur_it->calculation = STBase::solution[when_to_collect][var_map[row.base_info->name]];
-      row.cur_it++;
+    for (auto & row: data_rows) {
+      if (iter == (*row.target_iteration)) {
+        row.cur_dat_to_fill->arg = arg;
+        row.cur_dat_to_fill->calculation = (*row.m_ptr_to_sol);
+
+        row.cur_dat_to_fill++;
+        row.target_iteration++;
+      }
     }
-  }  // while among gaps 
+  });
   
   return STBase::calculate_dfi();
 }  // StraightTaskForBGA::SolveForBGA()
 
 ST_FOR_BGA(void)::map_variables() {
-  var_map.emplace("ROS", STBase::VarName::ROS);
-  var_map.emplace("p53", STBase::VarName::p53);
-  var_map.emplace("Sirt1", STBase::VarName::Sirt1);
-  var_map.emplace("miR-34a", STBase::VarName::miR_34a);
-  var_map.emplace("Bax", STBase::VarName::Bax);
+  var_map.emplace("ROS", &(current_solution[0]));
+  var_map.emplace("p53", &(current_solution[1]));
+  var_map.emplace("Sirt1", &(current_solution[2]));
+  var_map.emplace("miR-34a", &(current_solution[3]));
+  var_map.emplace("Bax", &(current_solution[4]));
 }
 
 ST_FOR_BGA(void)::map_coefficients() {
