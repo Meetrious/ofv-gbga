@@ -33,13 +33,13 @@ ST_FOR_BGA()::StraightTaskForBGA(const STBase & base_st,
   }
 
   for (const auto& feat_base_ptr: control_constants_base_ptrs) {
-    if (coef_map.end() == coef_map.find(feat_base_ptr->m_base_name.c_str())) {
+    if (coef_map.end() == coef_map.find(feat_base_ptr->m_base_name)) {
       // в списке размапленных коэффициентов не нашлось текущего m_base_name.c_str()
 
       continue;
     }
     // feat_base_ptr->m_base_name.c_str() найден. Надо добавить указатель в ptrs_to_constants
-    const char* current_coef_name = feat_base_ptr->m_base_name.c_str();
+    std::string current_coef_name = feat_base_ptr->m_base_name.c_str();
     ptrs_to_constants.emplace_back(const_cast<coefType*>(coef_map[current_coef_name]));
   }
 
@@ -53,13 +53,12 @@ ST_FOR_BGA()::StraightTaskForBGA(const STBase & base_st,
     // не по чему считать невязку, бросаем исключение
   }
   for(const auto& sds_base_ptr: control_variables_base_ptrs) {
-    if (var_map.end() == var_map.find(sds_base_ptr->m_name.c_str())) {
+    if (var_map.end() == var_map.find(sds_base_ptr->m_name)) {
       // в размапленном списке переменных не нашлось m_name.c_str() имени
       continue;
     }
-
     // sds_base_ptr->m_name.c_str() найден. Надо добавить указатель 
-    const char* cur_variable_name = sds_base_ptr->m_name.c_str();
+    std::string cur_variable_name = sds_base_ptr->m_name.c_str();
     data_rows.emplace_back(sds_base_ptr, var_map[cur_variable_name]);
   } 
 
@@ -135,11 +134,19 @@ ST_FOR_BGA(void)::apply_individ(const Individ & indiv) {
 
 ST_FOR_BGA(double)::SolveForBGA() {
 
-  STBase::solve([this](std::vector<double> solution, size_t iter, double arg){
-    current_solution = solution;
+  /** DELETE IT */std::cout<<data_rows.size()<<"\n";
 
-    for (auto & row: data_rows) {
+  STBase::solve([this](std::vector<double> solution, size_t iter, double arg){
+    this->current_solution = solution;
+
+    for (auto & row: this->data_rows) {
+      if (row.m_ptr_to_base->iterations_when_to_collect.end() == row.target_iteration)
+      {
+        continue;
+      }
+      
       if (iter == (*row.target_iteration)) {
+        /** DELETE IT */std::cout<<iter<<"\n";
         row.cur_dat_to_fill->arg = arg;
         row.cur_dat_to_fill->calculation = (*row.m_ptr_to_sol);
 
@@ -148,7 +155,9 @@ ST_FOR_BGA(double)::SolveForBGA() {
       }
     }
   });
-  
+
+  /** DELETE IT */std::cout<<"after solve\n";
+
   return calculate_dfi();
 }  // StraightTaskForBGA::SolveForBGA()
 
@@ -185,10 +194,17 @@ synched_data_storage::base::recognize_data_from_source() {
 
 	for (size_t i = 0; !in.eof(); ++i) {
     m_src_data.emplace_back();
-		in >> m_src_data.front().arg;
-		in >> m_src_data.front().standart;
+		in >> m_src_data.back().arg;
+		in >> m_src_data.back().standart;
 	}
   m_src_data.shrink_to_fit();
+  /** DELETE IT : START */
+  for (auto el : m_src_data)
+  {
+    std::cout<<el.arg<<" "<<el.standart<<"\n";
+  }
+  std::cout<<"\n\n";
+  /** DELETE IT : END */
 }
 
 void
@@ -212,11 +228,19 @@ synched_data_storage::base::base(const char* name,
     print_info();
   #endif
 
+  /** DELETE IT */std::cout<<name<<" ";
   if (!m_src_data.empty()) {
     for (const auto& dat: m_src_data) {
       iterations_when_to_collect.emplace_back(std::abs(dat.arg - arg_0)/st_grid_step);
     }
     iterations_when_to_collect.shrink_to_fit();
+    /** DELETE IT : START */
+    for (auto el : iterations_when_to_collect)
+    {
+      std::cout<<el<<" ";
+    }
+    std::cout<<"\n";
+    /** DELETE IT : END */
   }
 }
 

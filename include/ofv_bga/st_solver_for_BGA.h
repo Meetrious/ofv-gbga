@@ -76,7 +76,7 @@ private:
    *  чтобы потом вдоль их значений можно было считать невязку. 
    * \note метод заполняется для каждой задачи по своему. */
   void map_variables();
-  std::map<const char*, const varType*> var_map;
+  std::map<std::string, const varType*> var_map;
   vector<synched_data_storage> data_rows;
   vector<double> current_solution;
 
@@ -84,7 +84,7 @@ private:
    * где хранятся константы, варьированием которых BGA сможет решать обратную задачу. 
    * \note метод заполняется для каждой задачи по своему. */
   void map_coefficients();
-  std::map<const char*, const coefType*> coef_map;
+  std::map<std::string, const coefType*> coef_map;
   vector<coefType*> ptrs_to_constants;
   
   /** \brief метод для заполнения iterations_when_to_collect 
