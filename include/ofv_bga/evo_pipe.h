@@ -35,11 +35,6 @@ class StraightTaskSolverThread {
 
  public:
 
-  // IAggregateControls F;
-
-  //  // list of coefficients varying in the BGA
-  // array<StraightTask::IConstant*, CTV_SIZE> CoefsToVariate;
-
   StraightTaskSolverThread(): m_worker_index(++current_amount_of_workers) {}
 
   /** \brief настраивается прямая задача, которую он будет решать. */

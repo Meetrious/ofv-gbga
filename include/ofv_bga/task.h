@@ -8,9 +8,7 @@
 #include <ofv_bga/individ.h>
 #include <ofv_bga/st_solver_for_BGA.h>
 
-/* size of the std::array object that contains pointers to parameters that
- * are to variate during BGA iterations */
-#define CTV_SIZE 30
+#define MAX_AMOUNT_OF_THREADS 8
 
 namespace BGA {
 
@@ -29,7 +27,7 @@ class Task final {
   Parameters m_params;
 
   /** \brief массив из решателей, которых ровно MAX_AMOUNT_OF_THREADS-штук */
-  array<StraightTaskSolverThread<StraightTask_t>, MAX_AMOUNT_OF_THREADS> crew;
+  array<StraightTaskSolverThread<StraightTaskType>, MAX_AMOUNT_OF_THREADS> crew;
 
   /** \brief индивид, инициализарованный коэф-тами, прописанными по умолчанию */
   Individ default_indiv;

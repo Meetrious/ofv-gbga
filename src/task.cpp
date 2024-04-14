@@ -1,10 +1,12 @@
 #include <ofv_bga/task.h>
-
+#include <common/Timer.h>
+#include <tiny_instruments/easy_random.h>
+#include <exceptions.h>
 
 #include <cmath>
 #include <iostream>
-#include <common/Timer.h>
 #include <memory>
+#include <cassert>
 
 namespace {
 
@@ -38,24 +40,22 @@ TEMPLATE_BGA_TASK()::Task(const StraightTaskType&                 stRef,
     worker.m_static.ptr_to_st = std::make_unique(stRef);
   }
 
-  amount_of_attributes = featureBasesPtrs.size();
+  m_params.amount_of_attributes = featureBasesPtrs.size();
 
-  // initialising default member by current default state of the ODE System in ST
-
-  for (size_t i = 0; i < p_0; ++i) {
-    population.emplace_back(default_member);
+  for (size_t i = 0; i < m_params.initial_p; ++i) {
+    population.emplace_back(default_indiv);
   }
   population.shrink_to_fit();
 
   // this object is ready for the algorithm, kind of...
 
-  ios.ConstructCoefEvoPlotScript(bounds, Workers[0].CoefsToVariate);
+  ios.ConstructCoefEvoPlotScript(default_indiv.m_features);
   ios.ConstructAberEvoPlotScript();
   ios.ConstructMultiplotScript();
 
-  ios.RestartCollector(*this, Workers[0].CoefsToVariate);
+  ios.RestartCollector(m_params, default_indiv.m_features);
 
-  ios.CSout.open(output_dir + "RT/current/leaders_C.txt", std::ios_base::out);
+  ios.CSout.open(ios.m_dirForOutput + "RT/current/leaders_C.txt", std::ios_base::out);
   if (!ios.CSout) {
     std::cerr << "\n !!!stream for coefficients was not allocated"
               << " for some reason.\n Throwing exception!";
@@ -65,20 +65,20 @@ TEMPLATE_BGA_TASK()::Task(const StraightTaskType&                 stRef,
   }
 
   ios.CSout << '#' 
-            << "mutation_param = " << mutation_val << "\t"
-            << "recomb_param = " << recombination_val << "\t"
-            << "N_gen" << amount_of_iterations << "\t"
-            << "population : " << p_0 << " -> " << p << std::endl;
+            << "mutation_param = " << m_params.mutation_val << "\t"
+            << "recomb_param = " << m_params.recombination_val << "\t"
+            << "N_gen" << m_params.amount_of_iterations << "\t"
+            << "population : " << m_params.initial_p << " -> " << m_params.regular_p << std::endl;
 
   ios.CSout << "#";
-  for (size_t i = 0; i <= amount_of_attributes; i++) 
-    ios.CSout << Workers[0].CoefsToVariate[i]->name << "\t";
+  for (size_t i = 0; i <= m_params.amount_of_attributes; ++i) 
+    ios.CSout << featureBasesPtrs[i]->m_base_name << "\t";
 
   ios.CSout << std::endl;
 
   ios.CSout.close();
 
-  ios.Fout.open(output_dir + "RT/current/leaders_F.txt", std::ios_base::out);
+  ios.Fout.open(ios.m_dirForOutput + "RT/current/leaders_F.txt", std::ios_base::out);
   if (!ios.Fout) {
     std::cerr << "\n !!!stream for dfi-values were not allocated"
               << " for some reason.\n Throwing exception!";
@@ -93,41 +93,36 @@ TEMPLATE_BGA_TASK()::Task(const StraightTaskType&                 stRef,
 TEMPLATE_BGA_TASK(void)::SolveForOutput() {
   using namespace common;
 
-  // кол-во особей генерируемых от исходных границ после отбора
-  unsigned int amount_of_newbies = newly_recreated_fraction * m_params.regular_p;
-
-  // кол-во особей после отбора
-  unsigned int amount_of_favorites = sorted_fraction * m_params.regular_p;
-
   // кол-во, до которого можно пополнять популяцию перед появлением "новичков"
-  unsigned int quoted_amount_for_reproduction = m_params.regular_p - amount_of_newbies;
+  unsigned int quoted_amount_for_reproduction =
+    m_params.regular_p - (m_params.survived_p + m_params.recreated_p);
 
-  assert(amount_of_newbies + amount_of_favorites > 100);
+  assert(m_params.regular_p < quoted_amount_for_reproduction + m_params.survived_p + m_params.recreated_p);
 
   m_params.display();
 
   Timer timer;
 
-  for (uint16_t j = 0; j <= amount_of_attributes; ++j)
-    crew[0].CoefsToVariate[j]->value = default_member.coefs_values[j];
+  // for (uint16_t j = 0; j <= m_params.amount_of_attributes; ++j)
+  //   crew[0].CoefsToVariate[j]->value = default_member.coefs_values[j];
 
   // calculating Aberration value of the default_member
-  Population[0].F_value = crew[0].STM.SolveForBGA(crew[0].F);
+  population[0].m_dfi_value = crew[0].STM.SolveForBGA();
 
   timer.ClickEnd();
 
   auto time = timer.CountInterval();
 
-  std::cout << "\n \t initial relative aberration = " << Population[0].F_value << std::endl;
+  std::cout << "\n \t initial relative aberration = " << population[0].m_dfi_value << std::endl;
 
   /* std::cout << "\t time spent on evaluation ~" <<
   std::chrono::duration_cast<std::chrono::microseconds>(time).count() << " ms" << std::endl
     << "\t approximate computation time:"
-    << "\t\t" << dur_cast_to_ms(time * (p_0 + p * (amount_of_iterations
+    << "\t\t" << dur_cast_to_ms(time * (m_params.initial_p + m_params.regular_p * (amount_of_iterations
   - 1)) / amount_of_threads).count() << " ms"
-    << "\t\t" << dur_cast_to_sec(time * (p_0 + p * (amount_of_iterations -
+    << "\t\t" << dur_cast_to_sec(time * (m_params.initial_p + m_params.regular_p * (amount_of_iterations -
   1)) / amount_of_threads).count() << " sec"
-    << "\t\t" << dur_cast_to_min(time * (p_0 + p * (amount_of_iterations -
+    << "\t\t" << dur_cast_to_min(time * (m_params.initial_p + m_params.regular_p * (amount_of_iterations -
   1)) / amount_of_threads).count() << " min"; getchar(); // */
 
   /* let's process the first fraction of the population;
@@ -135,50 +130,48 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
 
   timer.ClickStart();
 
-  engage(1, m_params.amount_of_favorites)
+  engage(1, m_params.survived_p);
 
-  Population[1] = Population[0];
+  population[1] = population[0]; /// TODO: а надо ли?? и можно ли?
 
   // 
-  for (uint16_t cit = 1; cit <= amount_of_iterations; cit++) {
-    bool it_is_time_to_print = (cit % (amount_of_threads * 2) == 0);
+  for (uint16_t cit = 1; cit <= m_params.amount_of_iterations; cit++) {
+    const bool it_is_time_to_print = (cit % (m_params.amount_of_threads * 2) == 0);
 
     if (it_is_time_to_print)
-      std::cout << "\n" << cit << '/' << amount_of_iterations << "th iteration of BGA: " << std::endl;
+      std::cout << "\n" << cit << '/' << m_params.amount_of_iterations << "th iteration of BGA: " << std::endl;
 
     // распределение решения прямой задачи по потокам
-    engage(m_params.amount_of_favorites,  Population.size());
+    engage(m_params.survived_p,  population.size());
 
     // 2. Sorting vector container in ascending order of F_values
     Sort1stFrac(it_is_time_to_print);
 
     // 4. "Recombining"
-    for (size_t cur_indiv_idx = amount_of_favorites;
+    for (size_t cur_indiv_idx = m_params.survived_p;
                 cur_indiv_idx < quoted_amount_for_reproduction;
                 ++cur_indiv_idx) {
-      Recombine(Population[cur_indiv_idx]);
-      Mutate(Population[cur_indiv_idx]);
+      Recombine(population[cur_indiv_idx]);
+      Mutate(population[cur_indiv_idx]);
     }
 
     // 5*. Accepting new members to the Population
     for (size_t cur_indiv_idx = quoted_amount_for_reproduction;
                 cur_indiv_idx <= m_params.regular_p;
                 ++cur_indiv_idx) {
-      for (size_t j = 0; j <= amount_of_attributes; ++j) {
-        Population[cur_indiv_idx].RandomiseCoef(j, bounds[0][j], bounds[1][j]);
-      }
+      population[cur_indiv_idx].randomize_in_base_bounds();
     }
 
-    ios.WriteResult(Population[1]);
+    ios.WriteResult(population[1]);
 
     if (1 == cit) {
-      Population.erase(Population.begin() + p + 1, Population.end());
-      Population.shrink_to_fit();
+      population.erase(population.begin() + m_params.regular_p + 1, population.end());
+      population.shrink_to_fit();
     }
   }
 
-  ios.WriteBest(Population[1]);
-  ios.WriteStatData(Population[1], "Raw_stat_N");
+  ios.WriteBest(population[1]);
+  ios.WriteStatData(population[1], "Raw_stat_N");
 
   timer.ClickEnd();
   time = timer.CountInterval();
@@ -196,7 +189,7 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
 
 
 TEMPLATE_BGA_TASK(void)::engage(const size_t first_indiv_idx,
-                                  const size_t last_indiv_idx) {
+                                const size_t last_indiv_idx) {
 
   for (size_t worker_idx = 0;
               worker_idx < m_params.amount_of_threads; 
@@ -213,29 +206,33 @@ TEMPLATE_BGA_TASK(void)::engage(const size_t first_indiv_idx,
 
 // /* // Recombine
 TEMPLATE_BGA_TASK(void)::Recombine(Individ& Ind) {
-  size_t prns[] = {(size_t)(random(1.0, amount_of_favorites)), (size_t)(random(1.0, amount_of_favorites))};
+  size_t parent_idx[] = {
+    static_cast<size_t>(my_rand::get(1.0, m_params.survived_p)),
+    static_cast<size_t>(my_rand::get(1.0, m_params.survived_p))
+  };
 
-  for (size_t j = 0; j <= amount_of_attributes; ++j) {
-    double alp = random(-rc, 1.0 + rc);
+  const Individ& parent_1 = population[parent_idx[0]],
+                 parent_2 = population[parent_idx[1]];
 
-    Ind.m_id_features[j] =
-        RecombExpr(Population[prns[0]].m_id_features[j], Population[prns[1]].m_id_features[j], alp);
-  }
-}  // */
+  Ind.replace_with_combination_of(parent_1, parent_2, m_params.recombination_val);
+}
 
 
 
 // /* // Mutate
 TEMPLATE_BGA_TASK(void)::Mutate(Individ& Ind) {
-  for (size_t j = 0; j <= amount_of_attributes; j++) {
-    bool isDeviationToTheRight = static_cast<int32_t>(random(1.0, 100.0)) % 2;
-    double gamma = random(0.0, 1.0);
-    double deviation = MutExpr(bounds[0][j], bounds[1][j], gamma, mu);
+  for (size_t j = 0; j <= m_params.amount_of_attributes; j++) {
+    const bool isDeviationToTheRight = static_cast<int32_t>(my_rand::get(1.0, 100.0)) % 2;
+    const double gamma = my_rand::get(0.0, 1.0);
+    const double l_bound = Ind.m_features[j].get_left_boundary(),
+                 r_bound = Ind.m_features[j].get_right_boundary();
+    const double mu = m_params.mutation_val;
+    double deviation = getMutation(l_bound, r_bound, gamma, mu);
 
     if (isDeviationToTheRight)
-      Ind.coefs_values[j] += deviation;
+      Ind.m_features[j].m_value += deviation;
     else
-      Ind.coefs_values[j] -= deviation;
+      Ind.m_features[j].m_value -= deviation;
   } 
 } // */
 
