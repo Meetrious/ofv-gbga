@@ -23,4 +23,12 @@ add_library(bga SHARED
   src/norm_interface.cpp
 )
 
-# target_link_libraries (greedy_projection ${PCL_LIBRARIES})
+# add_executable(st_for_bga_test
+#   src/tests/st_solver_test.cpp
+# )
+# target_link_libraries (st_for_bga_test bga)
+
+
+if(DEBUG_OUTPUT)
+  set_target_properties(bga PROPERTIES COMPILE_DEFINITIONS "DEBUG_OUTPUT")
+endif()
