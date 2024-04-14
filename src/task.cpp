@@ -11,11 +11,6 @@
 namespace {
 
 [[nodiscard]] inline double
-getRecombination(const double x, const double y, const double alp) noexcept {
-  return x + alp * (y - x);
-}
-
-[[nodiscard]] inline double
 getMutation(const double L, const double R,
             const double gamma, const double mu) noexcept {
   return mu * (R - L) * std::pow(2, -16 * gamma);
@@ -60,7 +55,6 @@ TEMPLATE_BGA_TASK()::Task(const StraightTaskType&                 stRef,
     std::cerr << "\n !!!stream for coefficients was not allocated"
               << " for some reason.\n Throwing exception!";
     throw external_file_allocation_error();
-    // getchar();
     return;
   }
 
@@ -203,7 +197,6 @@ TEMPLATE_BGA_TASK(void)::engage(const size_t first_indiv_idx,
   }
 }
 
-
 // /* // Recombine
 TEMPLATE_BGA_TASK(void)::Recombine(Individ& Ind) {
   size_t parent_idx[] = {
@@ -217,17 +210,16 @@ TEMPLATE_BGA_TASK(void)::Recombine(Individ& Ind) {
   Ind.replace_with_combination_of(parent_1, parent_2, m_params.recombination_val);
 }
 
-
-
 // /* // Mutate
 TEMPLATE_BGA_TASK(void)::Mutate(Individ& Ind) {
-  for (size_t j = 0; j <= m_params.amount_of_attributes; j++) {
+  for (size_t j = 0; j <= m_params.amount_of_attributes; ++j) {
+    
     const bool isDeviationToTheRight = static_cast<int32_t>(my_rand::get(1.0, 100.0)) % 2;
-    const double gamma = my_rand::get(0.0, 1.0);
-    const double l_bound = Ind.m_features[j].get_left_boundary(),
-                 r_bound = Ind.m_features[j].get_right_boundary();
-    const double mu = m_params.mutation_val;
-    double deviation = getMutation(l_bound, r_bound, gamma, mu);
+
+    const double gamma = my_rand::get(0.0, 1.0),
+                 l_bound = Ind.m_features[j].get_left_boundary(),
+                 r_bound = Ind.m_features[j].get_right_boundary(),
+                 deviation = getMutation(l_bound, r_bound, gamma, m_params.mutation_val);
 
     if (isDeviationToTheRight)
       Ind.m_features[j].m_value += deviation;

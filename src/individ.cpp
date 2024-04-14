@@ -49,7 +49,7 @@ Individ::replace_with_combination_of(const Individ& lhs,
                                      const double recomb_param) {
   // если this участвует в рекомбинации, то this не должен быть продуктом рекомбинации
   assertm((this == &lhs) or (this == &rhs),
-          "individ is used for recombination yet participates in it himself");
+          "individ is used for recombination yet participates in it");
 
   if (&lhs == &rhs) *this = lhs.m_features;  // self reproduction
 

@@ -12,7 +12,7 @@ bga_task:
 	g++ -c src/task.cpp $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
 evo_pipe:
-	g++ -c src/evo_pipe.cpp $(SET_LOCAL_INCLUDE_DIR) -o $@_module.o
+	g++ -c src/evo_pipe.cpp $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
 bga_st_solver:
 	g++ -c src/st_solver_for_BGA.cpp $(SET_LOCAL_INCLUDE_DIR) -o $@_module.o
@@ -31,7 +31,7 @@ bga_parameters:
 
 # compiles
 bga_ios:
-	g++ -c src/task_ios.cpp $(SET_LOCAL_INCLUDE_DIR) -o $@_module.o
+	g++ -c src/task_ios.cpp $(SET_LOCAL_INCLUDE_DIR)  -I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
 
 clean:
