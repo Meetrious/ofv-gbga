@@ -18,7 +18,7 @@ namespace BGA{
 
   ~Parameters() = default;
 
-  size_t amount_of_attributes;
+  size_t amount_of_features;
 
   /** \brief первичная численность популяции 
    * \note 0 < p_0 */

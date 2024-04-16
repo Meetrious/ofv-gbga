@@ -1,3 +1,6 @@
+#ifndef TASK_HPP_
+#define TASK_HPP_
+
 #include <ofv_bga/task.h>
 #include <common/Timer.h>
 #include <tiny_instruments/easy_random.h>
@@ -8,7 +11,10 @@
 #include <memory>
 #include <cassert>
 
-namespace {
+#define TEMPLATE_BGA_TASK(RETURN_TYPE) \
+  template <typename DockedStraightTaskType> RETURN_TYPE Task<DockedStraightTaskType>
+
+namespace BGA {
 
 [[nodiscard]] inline double
 getMutation(const double L, const double R,
@@ -16,29 +22,39 @@ getMutation(const double L, const double R,
   return mu * (R - L) * std::pow(2, -16 * gamma);
 }
 
-}  // namespace
+template<typename DockedStraightTaskType>
+  template<typename STBase, class coefType, class varType>
+  Task<DockedStraightTaskType>
+  Task<DockedStraightTaskType>::construct(
+      STBase&                                     st_base,
+      const std::vector<featureBaseCPtr>&         featureBasesPtrs,
+      const std::vector<controlVarBaseCPtr>&      controlVarBasesPtr,
+      const BGA::Parameters&                      bgaParams,
+      const std::string&                          dirForOutput) {
+  auto dst = DockedStraightTaskType(st_base, featureBasesPtrs, controlVarBasesPtr);
+  return Task(std::move(dst), featureBasesPtrs, bgaParams, dirForOutput);
+}
 
-#define TEMPLATE_BGA_TASK(RETURN_TYPE) \
-  template <typename StraightTaskType> RETURN_TYPE \
-  BGA::Task<StraightTaskType>
-
-TEMPLATE_BGA_TASK()::Task(const StraightTaskType&                 stRef,
-                          const vector<feature_t::base::CnstPtr>& featureBasesPtrs,
-                          const Parameters&                       bgaParams,
-                          const std::string&                      dirForOutput)
+TEMPLATE_BGA_TASK()::Task(DockedStraightTaskType&&          stRef,
+                          const vector<featureBaseCPtr>&    featureBasesPtrs,
+                          const Parameters&                 bgaParams,
+                          const std::string&                dirForOutput)
   : Parameters{bgaParams},
     default_indiv{featureBasesPtrs},
     ios{dirForOutput} {
 
   // инициализируем объекты прямых задач в crew
   for (auto & worker: crew) {
-    worker.m_static.ptr_to_st = std::make_unique(stRef);
+    worker.ptr_to_st = std::make_unique(stRef);
   }
 
-  m_params.amount_of_attributes = featureBasesPtrs.size();
+  m_params.amount_of_features = featureBasesPtrs.size();
 
-  for (size_t i = 0; i < m_params.initial_p; ++i) {
-    population.emplace_back(default_indiv);
+   // нулевой член популяции - текущее состояние задачи
+  population.emplace_back(default_indiv);
+  
+  for (size_t i = 1; i < m_params.initial_p; ++i) {
+    population.emplace_back(featureBasesPtrs);
   }
   population.shrink_to_fit();
 
@@ -50,6 +66,7 @@ TEMPLATE_BGA_TASK()::Task(const StraightTaskType&                 stRef,
 
   ios.RestartCollector(m_params, default_indiv.m_features);
 
+  /*
   ios.CSout.open(ios.m_dirForOutput + "RT/current/leaders_C.txt", std::ios_base::out);
   if (!ios.CSout) {
     std::cerr << "\n !!!stream for coefficients was not allocated"
@@ -65,7 +82,7 @@ TEMPLATE_BGA_TASK()::Task(const StraightTaskType&                 stRef,
             << "population : " << m_params.initial_p << " -> " << m_params.regular_p << std::endl;
 
   ios.CSout << "#";
-  for (size_t i = 0; i <= m_params.amount_of_attributes; ++i) 
+  for (size_t i = 0; i <= m_params.amount_of_features; ++i) 
     ios.CSout << featureBasesPtrs[i]->m_base_name << "\t";
 
   ios.CSout << std::endl;
@@ -79,10 +96,8 @@ TEMPLATE_BGA_TASK()::Task(const StraightTaskType&                 stRef,
     getchar();
     return;
   }
-  ios.Fout.close();
+  ios.Fout.close(); // */
 }
-
-
 
 TEMPLATE_BGA_TASK(void)::SolveForOutput() {
   using namespace common;
@@ -91,17 +106,22 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
   unsigned int quoted_amount_for_reproduction =
     m_params.regular_p - (m_params.survived_p + m_params.recreated_p);
 
-  assert(m_params.regular_p < quoted_amount_for_reproduction + m_params.survived_p + m_params.recreated_p);
+  assert(m_params.regular_p < quoted_amount_for_reproduction 
+                                + m_params.survived_p 
+                                + m_params.recreated_p);
 
   m_params.display();
 
   Timer timer;
 
-  // for (uint16_t j = 0; j <= m_params.amount_of_attributes; ++j)
+  // for (uint16_t j = 0; j <= m_params.amount_of_features; ++j)
   //   crew[0].CoefsToVariate[j]->value = default_member.coefs_values[j];
 
   // calculating Aberration value of the default_member
-  population[0].m_dfi_value = crew[0].STM.SolveForBGA();
+  crew[0].ptr_to_st->apply_individ(population[0]);
+
+  population[0].m_dfi_value 
+    = default_indiv.m_dfi_value = crew[0].ptr_to_st->SolveForBGA();
 
   timer.ClickEnd();
 
@@ -120,26 +140,26 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
   1)) / amount_of_threads).count() << " min"; getchar(); // */
 
   /* let's process the first fraction of the population;
-   * by that I mean calculate F_value (cind = current_individual) */
+   * by that I mean calculate m_dfi_value (cind = current_individual) */
 
   timer.ClickStart();
 
   engage(1, m_params.survived_p);
 
-  population[1] = population[0]; /// TODO: а надо ли?? и можно ли?
+  // default_individ должен участвовать в отборе
+  population[1] = population[0];
 
-  // 
-  for (uint16_t cit = 1; cit <= m_params.amount_of_iterations; cit++) {
-    const bool it_is_time_to_print = (cit % (m_params.amount_of_threads * 2) == 0);
+  for (size_t gen_idx = 1; gen_idx <= m_params.amount_of_iterations; ++gen_idx) {
+    const bool it_is_time_to_print = (gen_idx % (m_params.amount_of_threads * 2) == 0);
 
     if (it_is_time_to_print)
-      std::cout << "\n" << cit << '/' << m_params.amount_of_iterations << "th iteration of BGA: " << std::endl;
+      std::cout << "\n" << gen_idx << '/' << m_params.amount_of_iterations << "th iteration of BGA: " << std::endl;
 
     // распределение решения прямой задачи по потокам
     engage(m_params.survived_p,  population.size());
 
     // 2. Sorting vector container in ascending order of F_values
-    Sort1stFrac(it_is_time_to_print);
+    sort_adapted_fraction(it_is_time_to_print);
 
     // 4. "Recombining"
     for (size_t cur_indiv_idx = m_params.survived_p;
@@ -149,7 +169,7 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
       Mutate(population[cur_indiv_idx]);
     }
 
-    // 5*. Accepting new members to the Population
+    // 5*. Accepting new members to the population
     for (size_t cur_indiv_idx = quoted_amount_for_reproduction;
                 cur_indiv_idx <= m_params.regular_p;
                 ++cur_indiv_idx) {
@@ -158,7 +178,7 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
 
     ios.WriteResult(population[1]);
 
-    if (1 == cit) {
+    if (1 == gen_idx) {
       population.erase(population.begin() + m_params.regular_p + 1, population.end());
       population.shrink_to_fit();
     }
@@ -212,7 +232,7 @@ TEMPLATE_BGA_TASK(void)::Recombine(Individ& Ind) {
 
 // /* // Mutate
 TEMPLATE_BGA_TASK(void)::Mutate(Individ& Ind) {
-  for (size_t j = 0; j <= m_params.amount_of_attributes; ++j) {
+  for (size_t j = 0; j <= m_params.amount_of_features; ++j) {
     
     const bool isDeviationToTheRight = static_cast<int32_t>(my_rand::get(1.0, 100.0)) % 2;
 
@@ -228,4 +248,71 @@ TEMPLATE_BGA_TASK(void)::Mutate(Individ& Ind) {
   } 
 } // */
 
+
+TEMPLATE_BGA_TASK(bool)::sort_adapted_fraction
+(const bool it_is_time_to_print) {
+  size_t min_ind;
+  double tmp = 1000;
+
+  bool isBestfound = true;
+
+  // cycle to sort in ascending order best individials
+  for (size_t cur_best_idx = 1; cur_best_idx <= m_params.survived_p; ++cur_best_idx) {
+    // cycle to find best individual in the population beginning with (i)-th
+    // individual
+    for (size_t indiv_idx = cur_best_idx; indiv_idx < population.size(); ++indiv_idx) {
+      if (population[indiv_idx] < tmp) {
+        tmp = population[indiv_idx].m_dfi_value;
+        min_ind = indiv_idx;
+      }
+
+    }  // min_ind is now an index of the individual whose m_dfi_value is to be next
+       // in the accending order after (i-1)-th individual
+
+    tmp = 1000;  // reseting buffer-variable
+
+    // // if min_ind is in the right place...
+    // if (min_ind == i) {
+
+    //   // and if population[min_ind] is the leader of the previous iteration,
+    //   // then new best solution was not found
+    //   if (i == 1) isBestfound = false;
+
+    //   // ...then it stays right where it is. And we go on searching next best
+    // individual continue;
+    // }
+
+    // // otherwise we change its position in the current "leaderboard"
+    // else SwapInVect(i, min_ind); // 
+
+    if (min_ind != cur_best_idx) {
+      std::swap(population[cur_best_idx], population[min_ind]);
+    }
+      
+    // SwapInVect(i, min_ind);
+
+    // outputting current state of the leaderboard with regards to the
+    // first-third and amount_of_favorites'th leaders within current population // 
+    if (it_is_time_to_print) {
+      if (cur_best_idx <= 3) {
+        std::cout << "\t" << min_ind << " ===> " << cur_best_idx
+                  << " \t\t F = " << population[cur_best_idx].m_dfi_value << std::endl;
+        continue;
+      }
+
+      if (cur_best_idx == m_params.survived_p) {
+        std::cout << "\t ... \t ... \n"
+                  << "\t" << min_ind << " ===> " << cur_best_idx
+                  << " \t\t F = " << population[cur_best_idx].m_dfi_value << std::endl;
+      } 
+    }
+  }
+  return isBestfound;
+}  // */
+
+  
+}
+
 #undef TEMPLATE_BGA_TASK
+
+#endif  // TASK_HPP_

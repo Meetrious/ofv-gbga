@@ -49,7 +49,6 @@ struct synched_data_storage {
 
 };
 
-using featureBaseCPtr = BGA::feature_t::base::CnstPtr;
 using controlVarBaseCPtr = synched_data_storage::base::CnstPtr;
 
 template<typename STBase, typename coefType, class varType = double>

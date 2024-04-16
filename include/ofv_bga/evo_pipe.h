@@ -19,13 +19,13 @@ class IAggregateControls;
 
 
 /** \brief тип-интерфейс связи прямой задачи с обратной.
- * \note StraightTask_t-тип должен иметь move-конструктор,
+ * \note DockedStraightTaskType-тип должен иметь move-конструктор,
  *  double SolveForBGA(...) метод, который возвращает значение функционала невязки */
-template <typename StraightTask_t>
+template <typename DockedStraightTaskType>
 class StraightTaskSolverThread {
   static size_t current_amount_of_workers;
   const size_t m_worker_index;
-  std::unique_ptr<StraightTask_t> ptr_to_st = nullptr;
+  std::unique_ptr<DockedStraightTaskType> ptr_to_st = nullptr;
 
   /** \brief подставляет индивид в объект задачи под указателем ptr_to_st,
    * и вызывает решатель прямой задачи, в следствие которой будет получено невязка = dif_value
@@ -45,7 +45,7 @@ class StraightTaskSolverThread {
   // void PrepairToWork(const std::shared_ptr<vector<Individ>> & ptr_to_population,
   //                    const uint16_t amount_of_threads);
 
-  void retrieve_straight_task(StraightTask_t && fully_prepaired_straight_task);
+  void retrieve_straight_task(DockedStraightTaskType && fully_prepaired_straight_task);
 
   /** * \brief здесь выделяется поток. В нём из population-массива выбираются члены,
    * начиная с first_indiv_idx, и заканчивая last_indiv_idx, и через значение m_worker_index 
