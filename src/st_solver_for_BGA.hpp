@@ -1,3 +1,6 @@
+#ifndef ST_SOLVER_FOR_BGA_HPP_
+#define ST_SOLVER_FOR_BGA_HPP_
+
 #include <ofv_bga/st_solver_for_BGA.h>
 
 #include <string>
@@ -275,3 +278,5 @@ synched_data_storage::reset_iterators() {
 }  // namespace StraightTask
 
 #undef ST_FOR_BGA
+
+#endif  // ST_SOLVER_FOR_BGA_HPP_
