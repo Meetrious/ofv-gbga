@@ -4,24 +4,22 @@
 #include <cstddef>
 
 namespace BGA{
-  struct Parameters {
-  
- public:
-  Parameters(const unsigned iter_amount = 200,
-             const unsigned thread_amount = 1,
-             const unsigned init_pop_size = 200,
-             const unsigned reg_pop_size = 100,
-             const unsigned Sort_Fract = 30,
-             const unsigned Recr_Fract = 10,
-             const double recombination_parameter = 0.05,
-             const double mutation_parameter = 0.01);
+struct Parameters {
+  Parameters(unsigned iter_amount = 200,
+             unsigned thread_amount = 1,
+             unsigned init_pop_size = 200,
+             unsigned reg_pop_size = 100,
+             unsigned Sort_Fract = 30,
+             unsigned Recr_Fract = 10,
+             double recombination_parameter = 0.05,
+             double mutation_parameter = 0.01);
 
   ~Parameters() = default;
 
   size_t amount_of_features;
 
   /** \brief первичная численность популяции 
-   * \note 0 < p_0 */
+   * \note 2 < p_0 */
   unsigned int initial_p;
 
   /** \brief регулярная численность популяции 
@@ -30,7 +28,8 @@ namespace BGA{
 
   /** \brief численность индивидуумов воссозданных
    *  от исходных границ после очередного отбора
-   * \note 0 <= recreated_p < regular_p */
+   * \note 0 <= recreated_p <= regular_p - survived_p;
+   * Правое равенство удовлетворяется -> рекомбинации не происходит. */
   unsigned int recreated_p;
 
   /** \brief численность индивидуумов, переживших отбор 
@@ -58,6 +57,10 @@ namespace BGA{
 
   void display() noexcept;
   
+ private:
+
+  void assert_incorrect_initialization();
+
 };  // class Task::Parameters
 
 }  // namespace BGA

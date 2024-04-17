@@ -1,14 +1,28 @@
 #include <ofv_bga/task_parameters.h>
 #include <iostream>
+#include <exception>
+#include <cassert>
 
-BGA::Parameters::Parameters(unsigned iter_amount,
-                            unsigned thread_amount,
-                            unsigned init_pop_size,
-                            unsigned reg_pop_size,
-                            unsigned Sort_Fract,
-                            unsigned Recr_Fract,
-                            double recombination_parameter,
-                            double mutation_parameter
+#define assertm(exp, msg) assert(((void)msg, exp))
+
+namespace {
+  bool shout_and_toggle_if_true(const bool toggle_expression, const char* shout) {
+    if (toggle_expression == true) {
+      std::cerr << shout << std::endl;
+    }
+    return toggle_expression;
+  }
+}
+
+
+BGA::Parameters::Parameters(const unsigned iter_amount,
+                            const unsigned thread_amount,
+                            const unsigned init_pop_size,
+                            const unsigned reg_pop_size,
+                            const unsigned Sort_Fract,
+                            const unsigned Recr_Fract,
+                            const double recombination_parameter,
+                            const double mutation_parameter
 ) :
     amount_of_iterations{iter_amount},
     amount_of_threads{thread_amount},
@@ -21,9 +35,8 @@ BGA::Parameters::Parameters(unsigned iter_amount,
 
   survived_p = sorted_fraction * (regular_p / 100);
   recreated_p = newly_recreated_fraction * (regular_p / 100);
-
-}  // BGA::Task::Parameters-constructor
-
+  assert_incorrect_initialization();
+}
 
 void BGA::Parameters::display() noexcept {
   std::cout 
@@ -37,4 +50,22 @@ void BGA::Parameters::display() noexcept {
     << "\n\t recombination parameter = "        << recombination_val
     << "\n\t mutation parameter = "             << mutation_val
     << std::endl;
+}
+
+void BGA::Parameters::assert_incorrect_initialization() {
+  const bool initialization_is_bad = 
+    shout_and_toggle_if_true(initial_p < 3u, "initial population size must be more, then 2")
+
+    | shout_and_toggle_if_true(regular_p < 2u || initial_p < regular_p,
+                               "regular population size must be more, then 0"
+                               " and no more, then initial")
+
+    | shout_and_toggle_if_true(regular_p <= survived_p, "")
+
+    | shout_and_toggle_if_true(recreated_p > (regular_p - survived_p), "")
+
+    | shout_and_toggle_if_true(sorted_fraction >= 100u || newly_recreated_fraction >= 100u,
+                               "fractions are percentages; they can't be more then 100");
+
+  if (initialization_is_bad) throw std::runtime_error("Bad BGA parameters");
 }
