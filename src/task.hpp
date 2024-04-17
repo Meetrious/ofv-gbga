@@ -31,8 +31,10 @@ template<typename DockedStraightTaskType>
       const std::vector<controlVarBaseCPtr>&      controlVarBasesPtr,
       const BGA::Parameters&                      bgaParams,
       const std::string&                          dirForOutput) {
+
   auto dst = DockedStraightTaskType(st_base, featureBasesPtrs, controlVarBasesPtr);
   return Task(std::move(dst), featureBasesPtrs, bgaParams, dirForOutput);
+
 }
 
 TEMPLATE_BGA_TASK()::Task(DockedStraightTaskType&&          stRef,
@@ -103,7 +105,7 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
   using namespace common;
 
   // кол-во, до которого можно пополнять популяцию перед появлением "новичков"
-  unsigned int quoted_amount_for_reproduction =
+  const unsigned int quoted_amount_for_reproduction =
     m_params.regular_p - (m_params.survived_p + m_params.recreated_p);
 
   assert(m_params.regular_p < quoted_amount_for_reproduction 
@@ -114,9 +116,6 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
 
   Timer timer;
 
-  // for (uint16_t j = 0; j <= m_params.amount_of_features; ++j)
-  //   crew[0].CoefsToVariate[j]->value = default_member.coefs_values[j];
-
   // calculating Aberration value of the default_member
   crew[0].ptr_to_st->apply_individ(population[0]);
 
@@ -125,11 +124,12 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
 
   timer.ClickEnd();
 
-  auto time = timer.CountInterval();
+  std::cout << "\n Initial relative deviation from given ideal = " 
+            << population[0].m_dfi_value << std::endl;
 
-  std::cout << "\n \t initial relative aberration = " << population[0].m_dfi_value << std::endl;
-
-  /* std::cout << "\t time spent on evaluation ~" <<
+  auto time = timer.CountInterval(); 
+  /*
+  std::cout << "\t time spent on evaluation ~" <<
   std::chrono::duration_cast<std::chrono::microseconds>(time).count() << " ms" << std::endl
     << "\t approximate computation time:"
     << "\t\t" << dur_cast_to_ms(time * (m_params.initial_p + m_params.regular_p * (amount_of_iterations
@@ -140,7 +140,7 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
   1)) / amount_of_threads).count() << " min"; getchar(); // */
 
   /* let's process the first fraction of the population;
-   * by that I mean calculate m_dfi_value (cind = current_individual) */
+   * by that I mean calculate m_dfi_value (cind = current_individual)  // */
 
   timer.ClickStart();
 
@@ -161,16 +161,19 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
     // 2. Sorting vector container in ascending order of F_values
     sort_adapted_fraction(it_is_time_to_print);
 
-    // 4. "Recombining"
-    for (size_t cur_indiv_idx = m_params.survived_p;
-                cur_indiv_idx < quoted_amount_for_reproduction;
+    /* 4,5 Рекомбинация индивидуумов, пополнение популяции до приемлемого уровня
+      * и их мгновенная мутация на удачу. */
+    for (size_t cur_indiv_idx = m_params.survived_p,
+                amount_level_of_locals =
+                  m_params.survived_p + quoted_amount_for_reproduction;
+                cur_indiv_idx < amount_level_of_locals;
                 ++cur_indiv_idx) {
       Recombine(population[cur_indiv_idx]);
       Mutate(population[cur_indiv_idx]);
     }
 
-    // 5*. Accepting new members to the population
-    for (size_t cur_indiv_idx = quoted_amount_for_reproduction;
+    // 5*. Бонусом добавляем новых индивидуумов в популяцию, генерируя их из базовых границ
+    for (size_t cur_indiv_idx = m_params.survived_p + quoted_amount_for_reproduction;
                 cur_indiv_idx <= m_params.regular_p;
                 ++cur_indiv_idx) {
       population[cur_indiv_idx].randomize_in_base_bounds();
@@ -178,7 +181,9 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
 
     ios.WriteResult(population[1]);
 
-    if (1 == gen_idx) {
+    /* если это первая итерация, то текущий уровень популяции = исходной численности (initial_p),
+       которая, возможно, была выбрана заведомо больше, чем регулярная численность (regular_p) */
+    if (1u == gen_idx && m_params.initial_p == m_params.regular_p) {
       population.erase(population.begin() + m_params.regular_p + 1, population.end());
       population.shrink_to_fit();
     }
