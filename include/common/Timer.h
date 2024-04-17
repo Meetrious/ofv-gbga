@@ -38,7 +38,7 @@ dur_cast_to_min(raw_duration_t & rDur) {
 
 class Timer {
 	// std::chrono::time_point<std::chrono::steady_clock> start, end; // for windows
-	std::chrono::time_point<std::chrono::high_resolution_clock> start, end; 
+	std::chrono::time_point<std::chrono::high_resolution_clock> start, end; // for linux
 	
  public: 
 	Timer() {
