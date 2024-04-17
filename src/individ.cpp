@@ -9,16 +9,18 @@
 
 using namespace BGA;
 
-Individ::Individ(const std::vector<feature_t::base::CnstPtr>& featureBasesPtrs) {
-  for(size_t i = 0; i < featureBasesPtrs.size(); ++i) {
-      m_features.emplace_back(featureBasesPtrs[i]);
-  }
-}
-
 feature_t::feature_t(const base::CnstPtr & ptr_to_initial) 
-    : precursor(ptr_to_initial) {
+  : precursor(ptr_to_initial) {
   m_value = // рандомизация при порождении от базы
     my_rand::get(precursor->m_ini_bounds[0], precursor->m_ini_bounds[1]);
+}
+
+Individ::Individ(const std::vector<feature_t::base::CnstPtr>& featureBasesPtrs)
+  :generation_count(0u) {
+  for (size_t i = 0; i < featureBasesPtrs.size(); ++i) {
+      m_features.emplace_back(featureBasesPtrs[i]);
+  }
+  m_features.shrink_to_fit();
 }
 
 [[nodiscard]] double

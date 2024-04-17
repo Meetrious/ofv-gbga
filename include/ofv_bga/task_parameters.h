@@ -55,7 +55,11 @@ struct Parameters {
 
   unsigned int amount_of_threads;
 
-  void display() noexcept;
+  void display() const noexcept;
+
+  inline bool is_initial_size_regular() const noexcept {
+    return initial_p == regular_p;
+  }
   
  private:
 

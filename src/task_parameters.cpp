@@ -33,12 +33,12 @@ BGA::Parameters::Parameters(const unsigned iter_amount,
     recombination_val{recombination_parameter},
     mutation_val{mutation_parameter} {
 
-  survived_p = sorted_fraction * (regular_p / 100);
-  recreated_p = newly_recreated_fraction * (regular_p / 100);
+  survived_p  = (regular_p / 100) * sorted_fraction;
+  recreated_p = (regular_p / 100) * newly_recreated_fraction;
   assert_incorrect_initialization();
 }
 
-void BGA::Parameters::display() noexcept {
+void BGA::Parameters::display() const noexcept {
   std::cout 
     << "\n BGA parameters: \n"
     << "\n\t amount of iterations = "           << amount_of_iterations
@@ -54,11 +54,12 @@ void BGA::Parameters::display() noexcept {
 
 void BGA::Parameters::assert_incorrect_initialization() {
   const bool initialization_is_bad = 
-    shout_and_toggle_if_true(initial_p < 3u, "initial population size must be more, then 2")
+    shout_and_toggle_if_true(initial_p < 3u, 
+                             "initial population size must be more, then 2")
 
     | shout_and_toggle_if_true(regular_p < 2u || initial_p < regular_p,
-                               "regular population size must be more, then 0"
-                               " and no more, then initial")
+                               "regular population size must be more, then 2"
+                               " yet can't be more, then initial")
 
     | shout_and_toggle_if_true(regular_p <= survived_p, "")
 

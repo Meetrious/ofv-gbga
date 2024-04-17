@@ -115,32 +115,36 @@ struct Individ final {
    * от текущего индивидуума */ 
   double m_dfi_value = -1.0;
 
-  /** \brief move-конструктор от набора характеристик */
-  Individ(std::vector<feature_t>&& new_features) :
-    m_features(std::move(new_features)) {}
-    
-  /** \brief copy-конструктор от набора характеристик */
-  Individ(const std::vector<feature_t>& new_features) :
-    m_features() {}
-
   /** \brief copy-assignment для переопределение вектором характеристик */
   inline Individ& operator=(const std::vector<feature_t>& another_features) {
+    if (&another_features == &m_features) return *this;
     m_features = another_features; return *this;
   }
 
   /** \brief move-assignment для переопределение вектором характеристик */
   inline Individ& operator=(std::vector<feature_t>&& another_features) {
-      m_features = std::move(another_features); return *this;
+    if (&another_features == &m_features) return *this;
+    m_features = std::move(another_features); return *this;
   }
+
+  /** \brief конструктор от вектора указателей на базовые фитчи */
+  Individ(const std::vector<feature_t::base::CnstPtr>& feature_bases);
   
+  /** \brief move-конструктор от набора характеристик */
+  Individ(std::vector<feature_t>&& new_features) 
+    :generation_count(0u)
+    ,m_features(std::move(new_features)) {}
+    
+  /** \brief copy-конструктор от набора характеристик */
+  Individ(const std::vector<feature_t>& new_features) 
+    :generation_count(0u)
+    ,m_features(new_features) {}
+
   Individ(const Individ&) = default;
   Individ(Individ&&) = default;
   Individ& operator=(const Individ&) = default;
   Individ& operator=(Individ&&) = default;
   ~Individ() = default;
-
-   /** \brief конструктор от вектора указателей на базовые фитчи */
-  Individ(const std::vector<feature_t::base::CnstPtr>& feature_bases);
 
   inline bool 
   operator<(const Individ& another) const noexcept
@@ -160,7 +164,8 @@ struct Individ final {
   inline size_t get_amount_of_features() const noexcept { return m_features.size(); }
 
   void randomize_in_base_bounds() {
-    for(auto & feature: m_features) feature.randomize_in_base_bounds();
+    for (auto & feature: m_features) 
+      feature.randomize_in_base_bounds();
   }
  
  private:
