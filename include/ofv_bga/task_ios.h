@@ -41,7 +41,7 @@ class IOs final {
   void WriteOptimisedCoefs(const std::vector<feature_t>& features, size_t n_attributes);
 
   /** \brief */
-  void WriteStatData(Individ& best_Ind, const char* name);
+  void WriteStatData(const Individ& best_indiv, const char* name);
 
   /** \brief */
   void ReadBest(Individ& indiv);

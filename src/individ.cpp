@@ -90,8 +90,7 @@ BGA::operator*(const Individ& lhs, const Individ& rhs) {
   for (size_t i = 0; i < amount_of_features; ++i) {
     new_features.emplace_back(BGA::operator*(lhs.m_features[i], rhs.m_features[i]));
   }
-  Individ res = std::move(new_features);
-  return res;
+  return Individ(std::move(new_features));
 }
 
 [[nodiscard]] double
