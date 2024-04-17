@@ -105,7 +105,6 @@ class feature_t final {
 [[nodiscard]]feature_t
 operator*(const feature_t& lhs, const feature_t& rhs);
 
-
 struct Individ final {
 
   // attributes of current individual
@@ -144,12 +143,12 @@ struct Individ final {
   Individ(const std::vector<feature_t::base::CnstPtr>& feature_bases);
 
   inline bool 
-  operator<(const double value) const noexcept 
-  { return m_dfi_value < value; }
-
-  inline bool 
   operator<(const Individ& another) const noexcept
   { return m_dfi_value < another.m_dfi_value; }
+
+  inline bool 
+  operator<(double value) const noexcept
+  { return m_dfi_value < value; }
   
   /** \brief расчёт средней разницы между между id-атрибутов*/
   double get_avr_feat_diff(const Individ& other) const;
@@ -181,5 +180,7 @@ operator*(const Individ& lhs, const Individ& rhs);
 distance(const feature_t& one, const feature_t& another);
 
 }  // namespace BGA
+
+using featureBaseCPtr = BGA::feature_t::base::CnstPtr;
 
 #endif  // BGA_SPECIES_H_
