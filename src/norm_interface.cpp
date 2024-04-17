@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <numeric>
 #include <cassert>
 
 namespace DiscreteNorm {
@@ -18,10 +19,8 @@ get_diff(const vector<synced_datum>& syncedData) {
 
 double 
 get_l2sqr(const vector<double>& diffVect) {
-  double sum_of_sqr_diffs = 0.0;
-  for (auto const & dif: diffVect) {
-    sum_of_sqr_diffs += dif * dif;
-  }
+  const double sum_of_sqr_diffs =
+    std::accumulate(diffVect.begin(), diffVect.end(), 0.0, std::plus<double>());
   return sum_of_sqr_diffs / diffVect.size();
 }
 

@@ -7,6 +7,10 @@ RT_DIR := src
 BGA_TASK_MODULES_NAMES := task parameters ios
 BGA_TASK_MODULES := $(foreach NAME,$(BGA_TASK_MODULES_NAMES),${RT_DIR}${NAME}.cpp)
 
+cpk:
+	cppcheck --std=c++11 --enable=all \
+	-I include -I ~/dev/tiny_instruments/include/ \
+	--suppress=missingIncludeSystem src/*.cpp src/*.hpp
 
 bga_task:
 	g++ -c src/task.hpp $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
@@ -23,7 +27,7 @@ individ:
 
 # compiles
 norm_interface:
-	g++ -c src/norm_interface.cpp $(SET_LOCAL_INCLUDE_DIR) -o $@_module.o
+	g++ -c -std=c++11 src/norm_interface.cpp $(SET_LOCAL_INCLUDE_DIR) -o $@_module.o
 
 # compiles
 bga_parameters:

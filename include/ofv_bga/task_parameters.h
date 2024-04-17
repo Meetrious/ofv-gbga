@@ -5,14 +5,14 @@
 
 namespace BGA{
 struct Parameters {
-  Parameters(unsigned iter_amount = 200,
-             unsigned thread_amount = 1,
-             unsigned init_pop_size = 200,
-             unsigned reg_pop_size = 100,
-             unsigned Sort_Fract = 30,
-             unsigned Recr_Fract = 10,
-             double recombination_parameter = 0.05,
-             double mutation_parameter = 0.01);
+  explicit Parameters(unsigned iter_amount = 200,
+                      unsigned thread_amount = 1,
+                      unsigned init_pop_size = 200,
+                      unsigned reg_pop_size = 100,
+                      unsigned Sort_Fract = 30,
+                      unsigned Recr_Fract = 10,
+                      double recombination_parameter = 0.05,
+                      double mutation_parameter = 0.01);
 
   ~Parameters() = default;
 

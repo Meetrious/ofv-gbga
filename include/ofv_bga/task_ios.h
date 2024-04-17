@@ -16,7 +16,8 @@ class IOs final {
 
  public:
 
-  IOs(const std::string& dirForOutput): m_dirForOutput(dirForOutput) {}
+  explicit IOs(const std::string& dirForOutput)
+    : m_dirForOutput(dirForOutput) {}
 
   const std::string m_dirForOutput;
 
@@ -24,10 +25,10 @@ class IOs final {
   std::ifstream Cin;
 
   /** \brief */
-  void WriteBest(const Individ& Ind);
+  void WriteBest(const Individ& indiv);
 
   /** \brief */
-  void WriteResult(Individ& Ind);
+  void WriteResult(const Individ& indiv);
 
   /** \brief */
   void RestartCollector(const Parameters& RT_P, 
@@ -43,7 +44,7 @@ class IOs final {
   void WriteStatData(Individ& best_Ind, const char* name);
 
   /** \brief */
-  void ReadBest(Individ& Ind);
+  void ReadBest(Individ& indiv);
 
   /** \brief */
   void ConstructMultiplotScript();

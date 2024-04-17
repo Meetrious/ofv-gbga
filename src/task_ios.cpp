@@ -10,22 +10,22 @@ namespace BGA {
 
 using std::vector;
 
-void IOs::WriteBest(const Individ& Ind) {
+void IOs::WriteBest(const Individ& indiv) {
   CSout.open(m_dirForOutput + "/RT/current/best.txt", std::ios_base::out);
-  for (auto const& cur : Ind.m_features) CSout << cur.m_value << std::endl;
+  for (auto const& cur : indiv.m_features) CSout << cur.m_value << std::endl;
   CSout.close();
 }
 
-void IOs::WriteResult(Individ& Ind) {
+void IOs::WriteResult(const Individ& indiv) {
   CSout.open(m_dirForOutput + "/RT/current/leaders_feats.txt",
              std::ios_base::out | std::ios_base::app);
-  for (auto const& cur : Ind.m_features) CSout << cur.m_value << "\t\t\t";
+  for (auto const& cur : indiv.m_features) CSout << cur.m_value << "\t\t\t";
   CSout << std::endl;
   CSout.close();
 
   Fout.open(m_dirForOutput + "/RT/current/leaders_dfis.txt",
             std::ios_base::out | std::ios_base::app);
-  Fout << Ind.m_dfi_value << std::endl;
+  Fout << indiv.m_dfi_value << std::endl;
   Fout.close();
 }
 
@@ -91,16 +91,16 @@ void IOs::WriteOptimisedCoefs(
   CSout.close();
 }
 
-void IOs::WriteStatData(Individ& best_Ind, const char* name) {
+void IOs::WriteStatData(const Individ& best_indiv, const char* name) {
   Statout.open(m_dirForOutput + "/RT/accumul/" + name + ".txt",
                std::ios_base::out | std::ios_base::app);
-  for (auto const& cur : best_Ind.m_features) Statout << cur.m_value << "\t\t\t";
-  Statout << best_Ind.m_dfi_value << std::endl;
+  for (auto const& cur : best_indiv.m_features) Statout << cur.m_value << "\t\t\t";
+  Statout << best_indiv.m_dfi_value << std::endl;
   Statout.close();
 }
 
-void IOs::ReadBest(Individ& Ind) {
-  // Ind.m_features.clear();  /// \note: очищать нельзя, ведь не существует конструктора feature_t по значению
+void IOs::ReadBest(Individ& indiv) {
+  // indiv.m_features.clear();  /// \note: очищать нельзя, ведь не существует конструктора feature_t по значению
   Cin.open(m_dirForOutput + "RT/current/best.txt");
   if (!Cin) {
     std::cerr << "\n stop this maddness right now, "
@@ -108,13 +108,13 @@ void IOs::ReadBest(Individ& Ind) {
               << "RT-solution data!\n";
     return;
   }
-  const size_t amount_of_feats = Ind.m_features.size();
+  const size_t amount_of_feats = indiv.m_features.size();
   size_t i = 0u;
   while (!Cin.eof()) {
     if (i < amount_of_feats) {
       double inputed_value;
       Cin >> inputed_value;
-      Ind.m_features[i++].m_value = inputed_value;
+      indiv.m_features[i++].m_value = inputed_value;
     } else break;
   }
   Cin.close();

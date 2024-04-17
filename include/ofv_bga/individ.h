@@ -46,7 +46,7 @@ class feature_t final {
   operator double() const { return m_value; }
   
   /** \brief значимость значения в системе */
-  [[maybe_unused]]double m_relevance;  // \in[0,1]
+  [[maybe_unused]]double m_relevance = -1.0;  // \in[0,1]
 
  public:  /* BIG_5 \_______________________
   +                                         \*/
@@ -59,7 +59,7 @@ class feature_t final {
  public:  /* способы порождения \_________
   +                                        \*/
   /** \brief порождение существующей базой */
-  feature_t(const base::CnstPtr & ptr_to_initial);
+  explicit feature_t(const base::CnstPtr & ptr_to_initial);
 
  public:  /* геттеры \______________________________________________________
   +                                                                          \*/
@@ -128,15 +128,15 @@ struct Individ final {
   }
 
   /** \brief конструктор от вектора указателей на базовые фитчи */
-  Individ(const std::vector<feature_t::base::CnstPtr>& feature_bases);
+  explicit Individ(const std::vector<feature_t::base::CnstPtr>& feature_bases);
   
   /** \brief move-конструктор от набора характеристик */
-  Individ(std::vector<feature_t>&& new_features) 
+  explicit Individ(std::vector<feature_t>&& new_features) 
     :generation_count(0u)
     ,m_features(std::move(new_features)) {}
     
   /** \brief copy-конструктор от набора характеристик */
-  Individ(const std::vector<feature_t>& new_features) 
+  explicit Individ(const std::vector<feature_t>& new_features) 
     :generation_count(0u)
     ,m_features(new_features) {}
 

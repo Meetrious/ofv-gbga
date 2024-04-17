@@ -189,7 +189,7 @@ TEMPLATE_BGA_TASK(void)::engage(const size_t first_indiv_idx,
 }
 
 TEMPLATE_BGA_TASK(void)::Recombine(Individ& indiv) {
-  size_t parent_idx[] = {
+  const size_t parent_idx[] = {
     static_cast<size_t>(my_rand::get(1.0, m_params.survived_p)),
     static_cast<size_t>(my_rand::get(1.0, m_params.survived_p))
   };

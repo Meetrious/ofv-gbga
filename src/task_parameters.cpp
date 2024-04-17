@@ -23,15 +23,15 @@ BGA::Parameters::Parameters(const unsigned iter_amount,
                             const unsigned Recr_Fract,
                             const double recombination_parameter,
                             const double mutation_parameter
-) :
-    amount_of_iterations{iter_amount},
-    amount_of_threads{thread_amount},
-    initial_p{init_pop_size},
-    regular_p{reg_pop_size},
-    sorted_fraction{Sort_Fract},
-    newly_recreated_fraction{Recr_Fract},
-    recombination_val{recombination_parameter},
-    mutation_val{mutation_parameter} {
+) :amount_of_iterations{iter_amount}
+  ,amount_of_threads{thread_amount}
+  ,initial_p{init_pop_size}
+  ,regular_p{reg_pop_size}
+  ,sorted_fraction{Sort_Fract}
+  ,newly_recreated_fraction{Recr_Fract}
+  ,recombination_val{recombination_parameter}
+  ,mutation_val{mutation_parameter}
+  ,amount_of_features{0u} {
 
   survived_p  = (regular_p / 100) * sorted_fraction;
   recreated_p = (regular_p / 100) * newly_recreated_fraction;
