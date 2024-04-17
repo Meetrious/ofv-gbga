@@ -13,11 +13,10 @@ include_directories(
 
 # add_definitions(${PCL_DEFINITIONS})
 
-add_library(bga_prep SHARED
+add_library(BGAPrep SHARED
   src/individ.cpp
   src/task_parameters.cpp
   src/evo_pipe.cpp
-  src/st_solver_for_BGA.cpp
   src/task_ios.cpp
   src/norm_interface.cpp
 )
