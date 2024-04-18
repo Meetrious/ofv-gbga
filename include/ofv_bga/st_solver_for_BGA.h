@@ -59,6 +59,12 @@ class StraightTaskForBGA: public STBase {
                      const vector<featureBaseCPtr>& control_constants,
                      const vector<controlVarBaseCPtr>& control_variables);
 
+  StraightTaskForBGA(const StraightTaskForBGA&) = default;
+  StraightTaskForBGA(StraightTaskForBGA&&) = delete;
+  StraightTaskForBGA& operator=(const StraightTaskForBGA&) = default;
+  StraightTaskForBGA& operator=(StraightTaskForBGA&&) = delete;
+  ~StraightTaskForBGA() = default;
+
   /** \note метод заполняется для каждой задачи по своему. */
   double SolveForBGA();
 

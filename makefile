@@ -23,7 +23,7 @@ evo_pipe:
 	 $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
 bga_st_solver:
-	g++ -c src/st_solver_for_BGA.hpp ${STD} ${W_FLAGS}\
+	g++ -c include/ofv_bga/template_lib/st_solver_for_BGA.hpp ${STD} ${W_FLAGS}\
 	 $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
 # compiles
