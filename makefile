@@ -1,4 +1,5 @@
-
+STD=-std=c++17
+W_FLAGS = #-Wall -Werror -Wextra
 T_INST_INCLUDE_DIR = ~/dev/tiny_instruments/include/
 SET_LOCAL_INCLUDE_DIR = -I include
 RT_DIR := src
@@ -8,34 +9,42 @@ BGA_TASK_MODULES_NAMES := task parameters ios
 BGA_TASK_MODULES := $(foreach NAME,$(BGA_TASK_MODULES_NAMES),${RT_DIR}${NAME}.cpp)
 
 cpk:
-	cppcheck --std=c++11 --enable=all \
+	cppcheck -${STD} --enable=all \
 	-I include -I ~/dev/tiny_instruments/include/ \
 	--suppress=missingIncludeSystem src/*.cpp src/*.hpp
 
 bga_task:
-	g++ -c src/task.hpp $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
+	g++ -c src/task.hpp ${STD} ${W_FLAGS}\
+		$(SET_LOCAL_INCLUDE_DIR) \
+		-I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
 evo_pipe:
-	g++ -c src/evo_pipe.cpp $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
+	g++ -c src/evo_pipe.cpp ${STD} ${W_FLAGS}\
+	 $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
 bga_st_solver:
-	g++ -c src/st_solver_for_BGA.cpp $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
+	g++ -c src/st_solver_for_BGA.hpp ${STD} ${W_FLAGS}\
+	 $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
 # compiles
 individ:
-	g++ -c src/individ.cpp $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) 
+	g++ -c src/individ.cpp ${STD} ${W_FLAGS}\
+	 $(SET_LOCAL_INCLUDE_DIR) -I $(T_INST_INCLUDE_DIR) 
 
 # compiles
 norm_interface:
-	g++ -c -std=c++11 src/norm_interface.cpp $(SET_LOCAL_INCLUDE_DIR) -o $@_module.o
+	g++ -c src/norm_interface.cpp ${STD} ${W_FLAGS}\
+	 $(SET_LOCAL_INCLUDE_DIR) -o $@_module.o
 
 # compiles
 bga_parameters:
-	g++ -c src/task_parameters.cpp $(SET_LOCAL_INCLUDE_DIR) -o $@_module.o
+	g++ -c src/task_parameters.cpp ${STD} ${W_FLAGS}\
+	 $(SET_LOCAL_INCLUDE_DIR) -o $@_module.o
 
 # compiles
 bga_ios:
-	g++ -c src/task_ios.cpp $(SET_LOCAL_INCLUDE_DIR)  -I $(T_INST_INCLUDE_DIR) -o $@_module.o
+	g++ -c src/task_ios.cpp ${STD} ${W_FLAGS}\
+	$(SET_LOCAL_INCLUDE_DIR)  -I $(T_INST_INCLUDE_DIR) -o $@_module.o
 
 by_cmake:
 	cmake -Wno-dev -B ./build -S .
