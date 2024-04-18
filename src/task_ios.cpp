@@ -10,13 +10,13 @@ namespace BGA {
 
 using std::vector;
 
-void IOs::WriteBest(const Individ& indiv) {
+void IOs::write_features_out(const Individ& indiv) {
   CSout.open(m_dirForOutput + "/RT/current/best.txt", std::ios_base::out);
   for (auto const& cur : indiv.m_features) CSout << cur.m_value << std::endl;
   CSout.close();
 }
 
-void IOs::WriteResult(const Individ& indiv) {
+void IOs::write_features_for_current_generation_out(const Individ& indiv) {
   CSout.open(m_dirForOutput + "/RT/current/leaders_feats.txt",
              std::ios_base::out | std::ios_base::app);
   for (auto const& cur : indiv.m_features) CSout << cur.m_value << "\t\t\t";
@@ -29,7 +29,7 @@ void IOs::WriteResult(const Individ& indiv) {
   Fout.close();
 }
 
-void IOs::RestartCollector(const Parameters& bgaParams,
+void IOs::restart_chronicler(const Parameters& bgaParams,
                            const vector<feature_t> & features) {
   CSout.open(m_dirForOutput + "RT/current/leaders_feats.txt", std::ios_base::out);
   if (!CSout) {
@@ -61,7 +61,7 @@ void IOs::RestartCollector(const Parameters& bgaParams,
   Fout.close();
 }
 
-void IOs::WriteCoefDefBorders(const vector<feature_t> & features) {
+void IOs::write_features_bounds_out(const vector<feature_t> & features) {
   CSout.open(m_dirForOutput + "/RT/accumul/CoefBorders.txt");
   if (!CSout) {
     std::cerr << "\n For some reason " 
@@ -76,7 +76,7 @@ void IOs::WriteCoefDefBorders(const vector<feature_t> & features) {
   CSout.close();
 }
 
-void IOs::WriteOptimisedCoefs(
+void IOs::write_optimized_features_out(
    const vector<feature_t> & features, size_t AOA) {
   CSout.open(m_dirForOutput + "/RT/accumul/OptCoefNames.txt", std::ios_base::out);
   if (!CSout) {
@@ -91,7 +91,8 @@ void IOs::WriteOptimisedCoefs(
   CSout.close();
 }
 
-void IOs::WriteStatData(const Individ& best_indiv, const char* name) {
+void IOs::write_full_result_for_current_generation_out(const Individ& best_indiv,
+                                                       const char* name) {
   Statout.open(m_dirForOutput + "/RT/accumul/" + name + ".txt",
                std::ios_base::out | std::ios_base::app);
   for (auto const& cur : best_indiv.m_features) Statout << cur.m_value << "\t\t\t";
@@ -99,7 +100,7 @@ void IOs::WriteStatData(const Individ& best_indiv, const char* name) {
   Statout.close();
 }
 
-void IOs::ReadBest(Individ& indiv) {
+void IOs::read_individ_instance_into(Individ& indiv) {
   // indiv.m_features.clear();  /// \note: очищать нельзя, ведь не существует конструктора feature_t по значению
   Cin.open(m_dirForOutput + "RT/current/best.txt");
   if (!Cin) {
@@ -112,15 +113,13 @@ void IOs::ReadBest(Individ& indiv) {
   size_t i = 0u;
   while (!Cin.eof()) {
     if (i < amount_of_feats) {
-      double inputed_value;
-      Cin >> inputed_value;
-      indiv.m_features[i++].m_value = inputed_value;
+      Cin >> indiv.m_features[i++].m_value;
     } else break;
   }
   Cin.close();
 }
 
-void IOs::ConstructMultiplotScript() {
+void IOs::construct_multiplot_script() {
   CSout.open(m_dirForOutput + "RT/plot_scripts/leaders_evo.plt", std::ios_base::out);
   if (!CSout) {
     std::cout << " \n Failed to create the leaders_evo.plt script in the given folder; "
@@ -144,7 +143,7 @@ void IOs::ConstructMultiplotScript() {
   CSout.close();
 }
 
-void IOs::ConstructCoefEvoPlotScript(const vector<feature_t> & features) {
+void IOs::construct_feat_evo_plot_script(const vector<feature_t> & features) {
   double max_right_boundary = 0;
 
   // looking for the biggest Right bound
@@ -183,7 +182,7 @@ void IOs::ConstructCoefEvoPlotScript(const vector<feature_t> & features) {
   CSout.close();
 }
 
-void IOs::ConstructAberEvoPlotScript() {
+void IOs::construct_dfi_evo_plot_script() {
   CSout.open(m_dirForOutput + "RT/plot_scripts/F_evo.plt", std::ios_base::out);
   if (!CSout) {
     std::cout << " \n Failed to create the F_evo.plt script in the given folder; "

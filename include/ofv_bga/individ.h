@@ -135,7 +135,8 @@ class Individ final {
     m_features = std::move(another_features); return *this;
   }
 
-  /** \brief конструктор от вектора указателей на базовые фитчи */
+  /** \brief конструктор от вектора указателей на базовые фитчи 
+   * \note главный способ порождения популяции. */
   explicit Individ(const std::vector<feature_t::base::CnstPtr>& feature_bases);
   
   /** \brief move-конструктор от набора характеристик */
@@ -162,7 +163,7 @@ class Individ final {
   operator<(double value) const noexcept
   { return m_dfi_value < value; }
   
-  /** \brief расчёт средней разницы между между id-атрибутов*/
+  /** \brief расчёт средней разницы между id-атрибутов*/
   double get_avr_feat_diff(const Individ& other) const;
 
   void replace_with_combination_of(const Individ& lhs,

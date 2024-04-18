@@ -60,11 +60,11 @@ TEMPLATE_BGA_TASK()::Task(DockedStraightTaskType&&          stRef,
   }
   population.shrink_to_fit();
 
-  ios.ConstructCoefEvoPlotScript(default_indiv.m_features);
-  ios.ConstructAberEvoPlotScript();
-  ios.ConstructMultiplotScript();
+  ios.construct_feat_evo_plot_script(default_indiv.m_features);
+  ios.construct_feat_evo_plot_script();
+  ios.construct_multiplot_script();
 
-  ios.RestartCollector(m_params, default_indiv.m_features);
+  ios.restart_chronicler(m_params, default_indiv.m_features);
 }
 
 TEMPLATE_BGA_TASK(void)::SolveForOutput() {
@@ -145,7 +145,7 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
       population[cur_indiv_idx].randomize_in_base_bounds();
     }
 
-    ios.WriteResult(population[1]);
+    ios.write_features_for_current_generation_out(population[1]);
 
     /* если это первая итерация, то текущий уровень популяции = исходной численности (initial_p),
        которая, возможно, была выбрана заведомо больше, чем регулярная численность (regular_p) */
@@ -155,8 +155,8 @@ TEMPLATE_BGA_TASK(void)::SolveForOutput() {
     }
   }
 
-  ios.WriteBest(population[1]);
-  ios.WriteStatData(population[1], "Raw_stat_N");
+  ios.write_features_out(population[1]);
+  ios.write_full_result_for_current_generation_out(population[1], "Raw_stat_N");
 
   timer.ClickEnd();
   time = timer.CountInterval();
