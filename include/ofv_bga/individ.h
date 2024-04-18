@@ -45,8 +45,8 @@ class feature_t final {
   double m_value;
   operator double() const { return m_value; }
   
-  /** \brief значимость значения в системе */
-  [[maybe_unused]]double m_relevance = -1.0;  // \in[0,1]
+  /** \brief значимость значения в системе \in[0,1] */
+  [[maybe_unused]]double m_relevance = -1.0;
 
  public:  /* BIG_5 \_______________________
   +                                         \*/
@@ -105,15 +105,23 @@ class feature_t final {
 [[nodiscard]]feature_t
 operator*(const feature_t& lhs, const feature_t& rhs);
 
-struct Individ final {
+class Individ final {
 
-  // attributes of current individual
-  std::vector<feature_t> m_features;
+  /** \brief порядковый номер текущего поколения */
+  unsigned long generation_count;
+
+  /* /// \brief hash-по именам
+   unsigned char hash[SHA_DIGEST_LENGTH];  // */
+
+ public:
 
   /** \brief deviation_from_ideal; 
    * значение функционала невязки на решении
    * от текущего индивидуума */ 
   double m_dfi_value = -1.0;
+
+  /** \brief массив из определяющих характеристик текущего индивидуума */ 
+  std::vector<feature_t> m_features;
 
   /** \brief copy-assignment для переопределение вектором характеристик */
   inline Individ& operator=(const std::vector<feature_t>& another_features) {
@@ -168,13 +176,6 @@ struct Individ final {
       feature.randomize_in_base_bounds();
   }
  
- private:
-
-  /** \brief порядковый номер текущего поколения */
-  unsigned long generation_count;
-
-  // /** \brief hash-по именам */
-  // unsigned char hash[SHA_DIGEST_LENGTH];  
 };
 
 /** \brief перемножение индивидуумов */
