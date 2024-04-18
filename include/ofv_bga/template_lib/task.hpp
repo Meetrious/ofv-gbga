@@ -61,7 +61,7 @@ TEMPLATE_BGA_TASK()::Task(DockedStraightTaskType&&          stRef,
   population.shrink_to_fit();
 
   ios.construct_feat_evo_plot_script(default_indiv.m_features);
-  ios.construct_feat_evo_plot_script();
+  ios.construct_dfi_evo_plot_script();
   ios.construct_multiplot_script();
 
   ios.restart_chronicler(m_params, default_indiv.m_features);

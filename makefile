@@ -11,10 +11,10 @@ BGA_TASK_MODULES := $(foreach NAME,$(BGA_TASK_MODULES_NAMES),${RT_DIR}${NAME}.cp
 cpk:
 	cppcheck -${STD} --enable=all \
 	-I include -I ~/dev/tiny_instruments/include/ \
-	--suppress=missingIncludeSystem src/*.cpp src/*.hpp
+	--suppress=missingIncludeSystem src/*.cpp include/ofv_bga/template_lib/*.hpp
 
 bga_task:
-	g++ -c src/task.hpp ${STD} ${W_FLAGS}\
+	g++ -c include/ofv_bga/template_lib/task.hpp ${STD} ${W_FLAGS}\
 		$(SET_LOCAL_INCLUDE_DIR) \
 		-I $(T_INST_INCLUDE_DIR) -o $@_module.o
 

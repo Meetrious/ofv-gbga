@@ -6,7 +6,7 @@
 
 #include <ofv_bga/evo_pipe.h>
 #include <ofv_bga/individ.h>
-#include <ofv_bga/st_solver_for_BGA.h>
+#include <ofv_bga/template_lib/st_solver_for_BGA.hpp>
 
 #define MAX_AMOUNT_OF_THREADS 8
 
