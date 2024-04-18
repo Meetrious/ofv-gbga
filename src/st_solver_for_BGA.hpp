@@ -10,6 +10,7 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 
 #define ST_FOR_BGA(RETURN_TYPE) \
   template<typename STBase, typename coefType, class varType> RETURN_TYPE\
@@ -253,9 +254,17 @@ synched_data_storage::base::base(const char* name,
   #endif
 
   if (!m_src_data.empty()) {
-    for (const auto& dat: m_src_data) {
-      iterations_when_to_collect.emplace_back(std::abs(dat.arg - arg_0)/st_grid_step);
-    }
+
+    // cppcheck-suggested realisation 
+    std::transform(m_src_data.begin(), m_src_data.end()
+                   ,iterations_when_to_collect.begin()
+                   ,[arg_0, st_grid_step](synced_datum& dat)
+                    {return std::abs(dat.arg - arg_0)/st_grid_step;});
+    
+    // realisation of the healthy person
+    // for (const auto& dat: m_src_data) {
+    //   iterations_when_to_collect.emplace_back(std::abs(dat.arg - arg_0)/st_grid_step);
+    // }
     iterations_when_to_collect.shrink_to_fit();
   }
 }
