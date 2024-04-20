@@ -25,7 +25,14 @@ ST_FOR_BGA()::StraightTaskForBGA(const STBase & base_st,
 
   if (control_constants_base_ptrs.empty() or
       control_variables_base_ptrs.empty()) {
-    // кина не будет
+    std::stringstream error_msg;
+    error_msg << "Bad StraightTask dock initialization. \n"
+              << "Some vector-list, that should not be empty, appeared to be: \n";
+    if (control_constants_base_ptrs.empty())
+      error_msg << "\t control_constants_base_ptrs appeared empty\n";
+    if (control_variables_base_ptrs.empty())
+      error_msg << "\t control_variables_base_ptrs appeared empty\n";
+    throw std::runtime_error(error_msg.str());
   }
   
   /** здесь происходит
@@ -33,7 +40,10 @@ ST_FOR_BGA()::StraightTaskForBGA(const STBase & base_st,
    *  т.е. установка связи ptrs_to_constants[i]-указателей с объектами констант в уравнениях */
   map_coefficients();
   if (coef_map.empty()) {
-    // варьировать нечего, решать нельзя, бросаем исключение
+    error_msg << "Bad StraightTask dock definition. \n\t"
+              << "map_coefficients-method, that should fill the coef_map vector\n\t"
+              << "with variables inside your STBase, that are avaliable for variation by BGA.";
+    throw std::runtime_error(error_msg.str());
   }
 
   for (const auto& feat_base_ptr: control_constants_base_ptrs) {
@@ -54,7 +64,10 @@ ST_FOR_BGA()::StraightTaskForBGA(const STBase & base_st,
    *  членами this->STBase::Mthd.X_sol */
   map_variables();
   if (var_map.empty()) {
-    // не по чему считать невязку, бросаем исключение
+     error_msg << "Bad StraightTask dock definition. \n\t"
+              << "map_variables-method, that should fill the var_mar-vector\n\t"
+              << "with variables inside your STBase, that are avaliable for tracking.";
+    throw std::runtime_error(error_msg.str());
   }
   for(const auto& sds_base_ptr: control_variables_base_ptrs) {
     if (var_map.end() == var_map.find(sds_base_ptr->m_name.c_str())) {
