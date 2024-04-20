@@ -40,6 +40,7 @@ ST_FOR_BGA()::StraightTaskForBGA(const STBase & base_st,
    *  т.е. установка связи ptrs_to_constants[i]-указателей с объектами констант в уравнениях */
   map_coefficients();
   if (coef_map.empty()) {
+    std::stringstream error_msg;
     error_msg << "Bad StraightTask dock definition. \n\t"
               << "map_coefficients-method, that should fill the coef_map vector\n\t"
               << "with variables inside your STBase, that are avaliable for variation by BGA.";
@@ -64,6 +65,7 @@ ST_FOR_BGA()::StraightTaskForBGA(const STBase & base_st,
    *  членами this->STBase::Mthd.X_sol */
   map_variables();
   if (var_map.empty()) {
+    std::stringstream error_msg;
      error_msg << "Bad StraightTask dock definition. \n\t"
               << "map_variables-method, that should fill the var_mar-vector\n\t"
               << "with variables inside your STBase, that are avaliable for tracking.";
@@ -180,7 +182,7 @@ ST_FOR_BGA(double)::SolveForBGA() {
     uint32_t Nj = 1;  // restating the number of the current step in num-method
 
     // 1st approximations for multistep-methods
-    if (current_gap == 0)
+    if (0 == current_gap)
       STBase::ApplyPrepStep(Nj, Tj);  // in one-step-methods it is void{return;}
 
     // cycle for processing current gap in <step_method>
