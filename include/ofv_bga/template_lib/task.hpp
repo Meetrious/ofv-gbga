@@ -41,7 +41,7 @@ TEMPLATE_BGA_TASK()::Task(DockedStraightTaskType&&          stRef,
                           const vector<featureBaseCPtr>&    featureBasesPtrs,
                           const Parameters&                 bgaParams,
                           const std::string&                dirForOutput)
-  : Parameters{bgaParams},
+  : m_params{bgaParams},
     default_indiv{featureBasesPtrs},
     ios{dirForOutput} {
 
