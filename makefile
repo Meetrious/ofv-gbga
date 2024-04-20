@@ -1,6 +1,6 @@
 STD=-std=c++17
 W_FLAGS = #-Wall -Werror -Wextra
-T_INST_INCLUDE_DIR = ~/dev/tiny_instruments/include/
+T_INST_INCLUDE_DIR = ../tiny_instruments/include/
 SET_LOCAL_INCLUDE_DIR = -I include
 RT_DIR := src
 

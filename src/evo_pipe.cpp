@@ -22,11 +22,11 @@ namespace BGA {
 //   // F.GatherData();
 // }
 
-ST_THR_TEMPLATE(void)::retrieve_straight_task(
-    StraightTask_t && fully_prepaired_straight_task) {
-  ptr_to_st = // передаём владение готовым straight-task-объектом сюда
-    std::make_unique<StraightTask_t>(std::move(fully_prepaired_straight_task));
-}
+// ST_THR_TEMPLATE(void)::retrieve_straight_task(
+//     StraightTask_t && fully_prepaired_straight_task) {
+//   ptr_to_st = // передаём владение готовым straight-task-объектом сюда
+//     std::make_unique<StraightTask_t>(std::move(fully_prepaired_straight_task));
+// }
 
 ST_THR_TEMPLATE(void)::operator() (vector<Individ> & population,
                                    const size_t first_indiv_idx,

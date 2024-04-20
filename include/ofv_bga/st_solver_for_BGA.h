@@ -60,9 +60,9 @@ class StraightTaskForBGA: public STBase {
                      const vector<controlVarBaseCPtr>& control_variables);
 
   StraightTaskForBGA(const StraightTaskForBGA&) = default;
-  StraightTaskForBGA(StraightTaskForBGA&&) = delete;
+  StraightTaskForBGA(StraightTaskForBGA&&) = default;
   StraightTaskForBGA& operator=(const StraightTaskForBGA&) = default;
-  StraightTaskForBGA& operator=(StraightTaskForBGA&&) = delete;
+  StraightTaskForBGA& operator=(StraightTaskForBGA&&) = default;
   ~StraightTaskForBGA() = default;
 
   /** \note метод заполняется для каждой задачи по своему. */

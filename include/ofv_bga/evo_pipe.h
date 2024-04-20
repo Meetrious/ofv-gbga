@@ -45,9 +45,7 @@ class StraightTaskSolverThread {
   // void PrepairToWork(const std::shared_ptr<vector<Individ>> & ptr_to_population,
   //                    const uint16_t amount_of_threads);
 
-  void retrieve_straight_task(DockedStraightTaskType && fully_prepaired_straight_task);
-
-  /** * \brief здесь выделяется поток. В нём из population-массива выбираются члены,
+  /** \brief здесь выделяется поток. В нём из population-массива выбираются члены,
    * начиная с first_indiv_idx, и заканчивая last_indiv_idx, и через значение m_worker_index 
    * назначаются индивиды, для которых данный поток будет решать прямую задачу. 
    * m_worker_index уникален для каждого объекта этого класса;
