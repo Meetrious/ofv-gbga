@@ -12,8 +12,8 @@ namespace BGA {
   using std::vector;
 
 #define ST_THR_TEMPLATE(RETURN_TYPE) \
-  template <typename StraightTask_t> RETURN_TYPE\
-  StraightTaskSolverThread<StraightTask_t>
+  template <typename DockedStraightTaskType> RETURN_TYPE\
+  StraightTaskSolverThread<DockedStraightTaskType>
 
 // ST_THR_TEMPLATE(void)::PrepairToWork(
 //     const shared_ptr<vector<Individ>> & ptr_to_population,

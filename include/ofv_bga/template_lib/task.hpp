@@ -47,7 +47,7 @@ TEMPLATE_BGA_TASK()::Task(DockedStraightTaskType&&          stRef,
 
   // инициализируем объекты прямых задач в crew
   for (auto & worker: crew) {
-    worker.ptr_to_st = std::make_unique(stRef);
+    worker.ptr_to_st = std::make_unique<DockedStraightTaskType>(stRef);
   }
 
   m_params.amount_of_features = featureBasesPtrs.size();
