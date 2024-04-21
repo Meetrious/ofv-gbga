@@ -1,3 +1,6 @@
+#ifndef BGA_THREAD_HPP_
+#define BGA_THREAD_HPP_
+
 #include <ofv_bga/evo_pipe.h>
 #include <exceptions.h>
 #include <iostream>
@@ -80,3 +83,5 @@ catch (const std::exception& e) {
 #undef ST_THR_TEMPLATE
 
 }  // namespace BGA
+
+#endif  // BGA_THREAD_HPP_

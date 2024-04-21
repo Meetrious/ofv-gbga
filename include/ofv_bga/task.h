@@ -4,7 +4,7 @@
 #include <ofv_bga/task_parameters.h>
 #include <ofv_bga/task_ios.h>
 
-#include <ofv_bga/evo_pipe.h>
+#include <ofv_bga/template_lib/evo_pipe.hpp>
 #include <ofv_bga/individ.h>
 #include <ofv_bga/template_lib/st_solver_for_BGA.hpp>
 
